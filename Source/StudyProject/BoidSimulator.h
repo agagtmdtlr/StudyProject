@@ -27,6 +27,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = "Mesh")
+	UStaticMeshComponent* StaticMesh;
+
+
 private:
 	void Insert(ABoid* boid);
 	void Resize(FIntVector NewSize);

@@ -12,7 +12,9 @@ ABoidSimulator::ABoidSimulator()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BoxHalfSize = FVector(50, 50, 50);
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Contaniner"));
 
+	RootComponent = StaticMesh;
 }
 
 // Called when the game starts or when spawned
