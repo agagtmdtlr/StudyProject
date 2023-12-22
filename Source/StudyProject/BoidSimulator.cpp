@@ -11,7 +11,8 @@ ABoidSimulator::ABoidSimulator()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	BoxHalfSize = FVector(50, 50, 50);
+	GridSize = 10.0;
+
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Contaniner"));
 
 	RootComponent = StaticMesh;
@@ -21,6 +22,7 @@ ABoidSimulator::ABoidSimulator()
 void ABoidSimulator::BeginPlay()
 {
 	Super::BeginPlay();
+	Resize(FIntVector(10, 10, 10));
 	
 }
 
@@ -30,20 +32,57 @@ void ABoidSimulator::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UWorld* World = GetWorld();
-	DrawDebugBox(World, GetActorLocation(), BoxHalfSize, FQuat::Identity, FColor::Red, false, 0.f);
 }
 
 void ABoidSimulator::Resize(FIntVector NewSize)
 {
+	if (GridSize <= 0.0)
+	{
+		STLOG_S(Warning);
+	}
+
+
+	CellSize = NewSize;
+
 	Grid.Release();
 	Grid = TUniquePtr<FGrid>(new FGrid(NewSize));
+	BoxHalfSize = FVector(NewSize) * GridSize;
 
+	UWorld* World = GetWorld();
+
+	FVector Location = GetActorLocation();
+
+	FVector MinLocation = Location - BoxHalfSize;
+
+	double GridExtent = GridSize * 0.5;
 	
+	for (int x = 0; x < NewSize.X; ++x)
+	{
+		for (int y = 0; y < NewSize.Y; ++y)
+		{
+			for (int z = 0; z < NewSize.Z; ++z)
+			{
+
+				FVector DrawLocation = MinLocation + FVector(x * GridSize, y * GridSize, z * GridSize);
+				DrawLocation += FVector(GridExtent);
+
+				DrawDebugBox(World, DrawLocation , FVector(GridSize), FQuat::Identity, FColor::Red, true);
+
+			}
+		}
+	}
+
+
 
 }
 
 void ABoidSimulator::Insert(ABoid* Boid)
 {
 	FVector CenterPosition = GetActorLocation();
-	Boid->GetActorLocation();
+	FVector MinLocation = CenterPosition - BoxHalfSize;
+
+	FVector BoidLocation = Boid->GetActorLocation();
+	FVector LocalPosition = BoidLocation - MinLocation;
+	FIntVector LocalIndex(LocalPosition.GridSnap(GridSize) / GridSize);
+
 }

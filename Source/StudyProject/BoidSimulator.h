@@ -32,12 +32,20 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
 	UStaticMeshComponent* StaticMesh;
 
+	UPROPERTY(EditAnywhere, Category = "Grid")
+	double GridSize; // 10.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Grid")
+	FIntVector CellSize;
 
 private:
 	void Insert(ABoid* boid);
 	void Resize(FIntVector NewSize);
 
 	FVector BoxHalfSize;
+	
+
+	
 	TUniquePtr<FGrid> Grid;
 };
 
