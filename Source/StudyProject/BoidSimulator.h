@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Grid.h"
+#include "BoidGrid.h"
 #include "BoidSimulator.generated.h"
 
 class ABoid;
+class UInstancedStaticMeshComponent;
 struct BoidContainer;
 
 UCLASS()
@@ -32,6 +33,12 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
 	UStaticMeshComponent* StaticMesh;
 
+	UPROPERTY(EditAnywhere, Category = "Component")
+	UInstancedStaticMeshComponent* ISMCompoent;
+
+	UPROPERTY(EditAnywhere, Category="Mesh")
+	UStaticMesh* MeshToInstance;
+
 	UPROPERTY(EditAnywhere, Category = "Grid")
 	double GridSize; // 10.0f;
 
@@ -49,6 +56,6 @@ private:
 	FVector BoxHalfSize;
 	
 	
-	TUniquePtr<FGrid> Grid;
+	TUniquePtr<FBoidGrid> Grid;
 };
 

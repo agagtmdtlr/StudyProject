@@ -4,6 +4,7 @@
 #include "BoidSimulator.h"
 #include "Boid.h"
 #include "DrawDebugHelpers.h"
+#include "Components/InstancedStaticMeshComponent.h"
 
 // Sets default values
 ABoidSimulator::ABoidSimulator()
@@ -14,8 +15,10 @@ ABoidSimulator::ABoidSimulator()
 	GridSize = 10.0;
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Contaniner"));
+	ISMCompoent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ISMCompoent"));
+	
 
-	RootComponent = StaticMesh;
+	RootComponent = ISMCompoent;
 }
 
 // Called when the game starts or when spawned
@@ -24,6 +27,9 @@ void ABoidSimulator::BeginPlay()
 	Super::BeginPlay();
 	Resize(FIntVector(10, 10, 10));
 	
+	
+
+
 }
 
 // Called every frame
@@ -32,6 +38,11 @@ void ABoidSimulator::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UWorld* World = GetWorld();
+	
+
+	
+
+	
 }
 
 void ABoidSimulator::Resize(FIntVector NewSize)
@@ -45,7 +56,7 @@ void ABoidSimulator::Resize(FIntVector NewSize)
 	CellSize = NewSize;
 
 	Grid.Release();
-	Grid = TUniquePtr<FGrid>(new FGrid(NewSize));
+	Grid = TUniquePtr<FBoidGrid>(new FBoidGrid(NewSize));
 	BoxHalfSize = FVector(NewSize) * GridSize;
 
 	UWorld* World = GetWorld();

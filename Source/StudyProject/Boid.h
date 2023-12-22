@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Grid.h"
+#include "BoidGrid.h"
 #include "Boid.generated.h"
 
 
@@ -40,7 +40,7 @@ private:
 
 	FRotator GoalRotator;
 
-	FGrid* Grid;
+	FBoidGrid* Grid;
 
 	
 

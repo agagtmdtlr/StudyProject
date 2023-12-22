@@ -9,7 +9,7 @@
 #include "STAnimInstance.h"
 #include "STWeapon.h"
 #include "DrawDebugHelpers.h"
-#include "Grid.h"
+#include "BoidGrid.h"
 #include <vector>
 
 // Sets default values
@@ -21,7 +21,7 @@ ASTCharacter::ASTCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	FGrid Grid(FIntVector(3,3,3));
+	FBoidGrid Grid(FIntVector(3,3,3));
 	FIntVector Index(1, 1, 1);
 	auto Cells = Grid.GetNearestCells(Index);
 

@@ -17,9 +17,9 @@
 
 
 template<typename T>
-struct TCell
+struct TBoidCell
 {
-	FORCEINLINE TCell();
+	FORCEINLINE TBoidCell();
 	void Insert(T Element);
 	void Erase(T Element);
 	void ForEach(TFunctionRef<void(T&)> Executer);
@@ -35,7 +35,7 @@ struct TCell
 };
 
 template<typename T>
-void TCell<T>::ForEach(TFunctionRef<void(T&)> Executer )
+void TBoidCell<T>::ForEach(TFunctionRef<void(T&)> Executer )
 {
 	if (IsBound(Executer))
 	{
@@ -47,43 +47,43 @@ void TCell<T>::ForEach(TFunctionRef<void(T&)> Executer )
 }
 
 template<typename T>
-void TCell<T>::Erase(T Element)
+void TBoidCell<T>::Erase(T Element)
 {
 	Elements.erase(Element);
 }
 
 template<typename T>
-void TCell<T>::Insert(T Element)
+void TBoidCell<T>::Insert(T Element)
 {	
 	Elements.insert(Element);
 }
 
 template<typename T>
-FORCEINLINE TCell<T>::TCell()
+FORCEINLINE TBoidCell<T>::TBoidCell()
 {
 }
 
 template<typename T>
-struct TGrid
+struct TBoidGrid
 {
 	//static_assert(std::is_base_of<AActor,T>, "T muse be derived AActor Class");
 
 public:
-	FORCEINLINE TGrid(FIntVector Dimensions);
+	FORCEINLINE TBoidGrid(FIntVector Dimensions);
 	void Insert(T Element, FIntVector Index);
-	FORCEINLINE TCell<T>& At(FIntVector Index);
+	FORCEINLINE TBoidCell<T>& At(FIntVector Index);
 
 	FORCEINLINE bool InnerBoundary(FIntVector Index) const;
 
-	std::vector<TCell<T>*> GetNearestCells(FIntVector Index);
+	std::vector<TBoidCell<T>*> GetNearestCells(FIntVector Index);
 
 	FIntVector Size;
 
-	std::vector<TCell<T>> Cells; // 3D to linear list
+	std::vector<TBoidCell<T>> Cells; // 3D to linear list
 };
 
 template<typename T>
-FORCEINLINE bool TGrid<T>::InnerBoundary(FIntVector Index) const
+FORCEINLINE bool TBoidGrid<T>::InnerBoundary(FIntVector Index) const
 {
 	if (Index.X < 0 || Index.X >= Size.X)
 		return false;
@@ -98,9 +98,9 @@ FORCEINLINE bool TGrid<T>::InnerBoundary(FIntVector Index) const
 }
 
 template<typename T>
-std::vector<TCell<T>*> TGrid<T>::GetNearestCells(FIntVector Index)
+std::vector<TBoidCell<T>*> TBoidGrid<T>::GetNearestCells(FIntVector Index)
 {
-	std::vector<TCell<T>*> NearestCells;
+	std::vector<TBoidCell<T>*> NearestCells;
 	NearestCells.reserve(27);
 
 	constexpr int dr[3] = { -1,0,1 };
@@ -118,20 +118,20 @@ std::vector<TCell<T>*> TGrid<T>::GetNearestCells(FIntVector Index)
 }
 
 template<typename T>
-FORCEINLINE TCell<T>& TGrid<T>::At(FIntVector Index)
+FORCEINLINE TBoidCell<T>& TBoidGrid<T>::At(FIntVector Index)
 {
 	return Cells[ Size.X * ( Size.Y  * Index.Z + Index.Y ) + Index.X];
 }
 
 template<typename T>
-void TGrid<T>::Insert(T Element, FIntVector Index)
+void TBoidGrid<T>::Insert(T Element, FIntVector Index)
 {
-	TCell& Cell = At(Index);
+	TBoidCell<T>& Cell = At(Index);
 	At(Index).Insert(Element);
 }
 
 template<typename T>
-FORCEINLINE TGrid<T>::TGrid(FIntVector Dimensions)
+FORCEINLINE TBoidGrid<T>::TBoidGrid(FIntVector Dimensions)
 	:Size(Dimensions)
 {
 	Cells.resize( Dimensions.X * Dimensions.Y * Dimensions.Z);
@@ -146,4 +146,4 @@ FORCEINLINE TGrid<T>::TGrid(FIntVector Dimensions)
 	}
 }
 
-using FGrid = TGrid<AActor*>;
+using FBoidGrid = TBoidGrid<AActor*>;
