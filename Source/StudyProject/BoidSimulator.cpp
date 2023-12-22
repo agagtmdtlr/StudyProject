@@ -76,13 +76,15 @@ void ABoidSimulator::Resize(FIntVector NewSize)
 
 }
 
-void ABoidSimulator::Insert(ABoid* Boid)
+void ABoidSimulator::Insert(ABoid* NewBoid)
 {
 	FVector CenterPosition = GetActorLocation();
 	FVector MinLocation = CenterPosition - BoxHalfSize;
 
-	FVector BoidLocation = Boid->GetActorLocation();
+	FVector BoidLocation = NewBoid->GetActorLocation();
 	FVector LocalPosition = BoidLocation - MinLocation;
 	FIntVector LocalIndex(LocalPosition.GridSnap(GridSize) / GridSize);
+
+	Grid->Insert(NewBoid, LocalIndex);
 
 }

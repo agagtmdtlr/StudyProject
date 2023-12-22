@@ -38,13 +38,16 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Grid")
 	FIntVector CellSize;
 
+	UPROPERTY(EditAnywhere, Category = "Boid")
+	TSubclassOf<class ABoid> Boid;
+
+
 private:
 	void Insert(ABoid* boid);
 	void Resize(FIntVector NewSize);
 
 	FVector BoxHalfSize;
 	
-
 	
 	TUniquePtr<FGrid> Grid;
 };
