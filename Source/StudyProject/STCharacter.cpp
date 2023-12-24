@@ -21,10 +21,6 @@ ASTCharacter::ASTCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	FBoidGrid Grid(FIntVector(3,3,3));
-	FIntVector Index(1, 1, 1);
-	auto Cells = Grid.GetNearestCells(Index);
-
 
 	UCapsuleComponent* CapulseComponent = GetCapsuleComponent();
 	CapulseComponent->SetCapsuleHalfHeight(85.5f);

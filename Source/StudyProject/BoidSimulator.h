@@ -7,7 +7,7 @@
 #include "BoidGrid.h"
 #include "BoidSimulator.generated.h"
 
-class ABoid;
+class UBoid;
 class UInstancedStaticMeshComponent;
 struct BoidContainer;
 
@@ -45,17 +45,17 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Grid")
 	FIntVector CellSize;
 
-	UPROPERTY(EditAnywhere, Category = "Boid")
-	TSubclassOf<class ABoid> Boid;
+	//UPROPERTY(EditAnywhere, Category = "Boid")
+	//TSubclassOf<UBoid> Boid;
 
 
 private:
-	void Insert(ABoid* boid);
-	void Resize(FIntVector NewSize);
+	//void Insert(UBoid* boid);
+	//void Resize(FIntVector NewSize);
 
 	FVector BoxHalfSize;
 	
 	
-	TUniquePtr<FBoidGrid> Grid;
+	//TUniquePtr<FBoidGrid> Grid;
 };
 

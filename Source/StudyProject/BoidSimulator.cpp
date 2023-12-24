@@ -2,7 +2,7 @@
 
 
 #include "BoidSimulator.h"
-#include "Boid.h"
+//#include "Boid.h"
 #include "DrawDebugHelpers.h"
 #include "Components/InstancedStaticMeshComponent.h"
 
@@ -16,8 +16,6 @@ ABoidSimulator::ABoidSimulator()
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Contaniner"));
 	ISMCompoent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ISMCompoent"));
-	
-
 	RootComponent = ISMCompoent;
 }
 
@@ -25,7 +23,8 @@ ABoidSimulator::ABoidSimulator()
 void ABoidSimulator::BeginPlay()
 {
 	Super::BeginPlay();
-	Resize(FIntVector(10, 10, 10));
+
+	//Resize(FIntVector(10, 10, 10));
 	
 	
 
@@ -44,6 +43,8 @@ void ABoidSimulator::Tick(float DeltaTime)
 
 	
 }
+
+/*
 
 void ABoidSimulator::Resize(FIntVector NewSize)
 {
@@ -82,20 +83,20 @@ void ABoidSimulator::Resize(FIntVector NewSize)
 			}
 		}
 	}
-
-
-
 }
 
-void ABoidSimulator::Insert(ABoid* NewBoid)
+
+void ABoidSimulator::Insert(UBoid* NewBoid)
 {
 	FVector CenterPosition = GetActorLocation();
 	FVector MinLocation = CenterPosition - BoxHalfSize;
 
-	FVector BoidLocation = NewBoid->GetActorLocation();
+	FVector BoidLocation = NewBoid->Position;
 	FVector LocalPosition = BoidLocation - MinLocation;
 	FIntVector LocalIndex(LocalPosition.GridSnap(GridSize) / GridSize);
+
 
 	Grid->Insert(NewBoid, LocalIndex);
 
 }
+*/

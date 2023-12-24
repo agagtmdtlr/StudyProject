@@ -6,26 +6,29 @@
 #include "UObject/NoExportTypes.h"
 #include "BoidBehavior.generated.h"
 
-UCLASS(abstract)
+UCLASS()
 class STUDYPROJECT_API UBoidBehavior : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UBoidBehavior();
+	UBoidBehavior() {};
 	virtual ~UBoidBehavior() {};
 
-	virtual void ExecuteAction(class ABoid* Boid, const TArray<class ABoid*>& Neighbors);
+	//void ExecuteAction(class ABoid* Boid, const TArray<class ABoid*>& Neighbors) {};
+
+
+private:
+	UPROPERTY(EditAnywhere, Category = "Range")
+		double SeparationRadius;
+
+	UPROPERTY(EditAnywhere, Category = "Range")
+		double CohesionRadius;
+
+	UPROPERTY(EditAnywhere, Category = "Range")
+		double AlignmentSpeed;
 };
 
-UBoidBehavior::UBoidBehavior()
-{
 
-}
-
-void UBoidBehavior::ExecuteAction(class ABoid* Boid, const TArray<class ABoid*>& Neighbors)
-{
-
-}
 
 

@@ -4,7 +4,7 @@
 
 
 #include "StudyProject.h"
-#include "GameFramework/Actor.h"
+//#include "Boid.h"
 #include <vector>
 #include <set>
 #include <unordered_map>
@@ -20,40 +20,39 @@ template<typename T>
 struct TBoidCell
 {
 	FORCEINLINE TBoidCell();
-	void Insert(T Element);
-	void Erase(T Element);
-	void ForEach(TFunctionRef<void(T&)> Executer);
+	void Insert(T* Element);
+	void Erase(T* Element);
+	void ForEach(TFunctionRef<void(T*, std::vector<TBoidCell<T>*>&)> Executer);
 
 	FIntVector Index;
 	FVector Min;
 	FVector Max;
 
+	std::vector<TBoidCell<T>*> NearestCells;
 
-	std::set<T> Elements;
-
-
+	std::set<T*> Elements;
 };
 
 template<typename T>
-void TBoidCell<T>::ForEach(TFunctionRef<void(T&)> Executer )
+void TBoidCell<T>::ForEach(TFunctionRef<void(T*, std::vector<TBoidCell<T>*>&)> Executer )
 {
 	if (IsBound(Executer))
 	{
-		for (T& Element : Elements)
+		for (T* Element : Elements)
 		{
-			Executer(Element);
+			Executer(Element , NearestCells);
 		}
 	}
 }
 
 template<typename T>
-void TBoidCell<T>::Erase(T Element)
+void TBoidCell<T>::Erase(T* Element)
 {
 	Elements.erase(Element);
 }
 
 template<typename T>
-void TBoidCell<T>::Insert(T Element)
+void TBoidCell<T>::Insert(T* Element)
 {	
 	Elements.insert(Element);
 }
@@ -66,11 +65,11 @@ FORCEINLINE TBoidCell<T>::TBoidCell()
 template<typename T>
 struct TBoidGrid
 {
-	//static_assert(std::is_base_of<AActor,T>, "T muse be derived AActor Class");
+	//static_assert(std::is_base_of<UBoid,T>, "T muse be derived UBoid Class");
 
 public:
 	FORCEINLINE TBoidGrid(FIntVector Dimensions);
-	void Insert(T Element, FIntVector Index);
+	void Insert(T* Element, FIntVector Index);
 	FORCEINLINE TBoidCell<T>& At(FIntVector Index);
 
 	FORCEINLINE bool InnerBoundary(FIntVector Index) const;
@@ -124,7 +123,7 @@ FORCEINLINE TBoidCell<T>& TBoidGrid<T>::At(FIntVector Index)
 }
 
 template<typename T>
-void TBoidGrid<T>::Insert(T Element, FIntVector Index)
+void TBoidGrid<T>::Insert(T* Element, FIntVector Index)
 {
 	TBoidCell<T>& Cell = At(Index);
 	At(Index).Insert(Element);
@@ -146,4 +145,4 @@ FORCEINLINE TBoidGrid<T>::TBoidGrid(FIntVector Dimensions)
 	}
 }
 
-using FBoidGrid = TBoidGrid<AActor*>;
+//using FBoidGrid = TBoidGrid<UBoid>;
