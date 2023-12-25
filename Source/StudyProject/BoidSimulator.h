@@ -5,9 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "BoidGrid.h"
+#include "Boid.h"
+#include "BoidActionModel.h"
 #include "BoidSimulator.generated.h"
 
-class UBoid;
 class UInstancedStaticMeshComponent;
 struct BoidContainer;
 
@@ -30,32 +31,34 @@ public:
 
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Mesh")
-	UStaticMeshComponent* StaticMesh;
-
-	UPROPERTY(EditAnywhere, Category = "Component")
+	UPROPERTY(EditDefaultsOnly, Category = "Component")
 	UInstancedStaticMeshComponent* ISMCompoent;
 
 	UPROPERTY(EditAnywhere, Category="Mesh")
 	UStaticMesh* MeshToInstance;
 
-	UPROPERTY(EditAnywhere, Category = "Grid")
-	double GridSize; // 10.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Grid")
+	double GridSize; 
 
-	UPROPERTY(EditAnywhere, Category = "Grid")
+	UPROPERTY(EditDefaultsOnly, Category = "Grid")
 	FIntVector CellSize;
 
-	//UPROPERTY(EditAnywhere, Category = "Boid")
-	//TSubclassOf<UBoid> Boid;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Boid")
+	TSubclassOf<UBoidActionModel> BoidActionModel;
 
 private:
-	//void Insert(UBoid* boid);
-	//void Resize(FIntVector NewSize);
+	void Insert(FVector BoidLocation);
+	void Resize(FIntVector NewSize);
+
+	FBoid::BoidUuid GeneratorBoidUuid();
 
 	FVector BoxHalfSize;
 	
-	
-	//TUniquePtr<FBoidGrid> Grid;
+	TUniquePtr<TBoidGrid<FBoid>> Grid;
+
+	TArray<FBoid> BoidInstances;
+	TArray<FTransform> InstanceMeshTranforms;
+
+	FBoid::BoidUuid UuidGenerator;
 };
 

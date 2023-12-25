@@ -4,20 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "BoidBehavior.generated.h"
+#include "BoidActionModel.generated.h"
 
+
+struct FBoid;
+/**
+ * 
+ */
 UCLASS()
-class STUDYPROJECT_API UBoidBehavior : public UObject
+class STUDYPROJECT_API UBoidActionModel : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UBoidBehavior() {};
-	virtual ~UBoidBehavior() {};
-
-	//void ExecuteAction(class ABoid* Boid, const TArray<class ABoid*>& Neighbors) {};
-
-
+	void UpdateBoid(FBoid* Boid);
+	
 private:
 	UPROPERTY(EditAnywhere, Category = "Range")
 		double SeparationRadius;
@@ -28,7 +29,3 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Range")
 		double AlignmentSpeed;
 };
-
-
-
-

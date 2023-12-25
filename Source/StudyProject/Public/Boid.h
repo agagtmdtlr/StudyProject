@@ -4,32 +4,48 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include <cstdint>
 #include "Boid.generated.h"
 
 /**
  * 
  */
-UCLASS()
-class STUDYPROJECT_API UBoid : public UObject
-{
-	GENERATED_BODY()
-	
-};
+//UCLASS()
+//class STUDYPROJECT_API UBoid : public UObject
+//{
+//	GENERATED_BODY()
+//	
+//};
+
+
 
 USTRUCT()
-struct FBoidStruct
+struct FBoid
 {
 	GENERATED_BODY()
 public:
+	using BoidUuid = uint32;
+
+
+	FBoid();
+
+	bool operator<(const FBoid& rhs) const;
+
+	FORCEINLINE bool IsValid() const { return Uuid != std::numeric_limits<BoidUuid>::max(); }
+
+public:	
 	UPROPERTY(VisibleAnywhere)
-		FVector Position;
+	FVector Position;
 
 	UPROPERTY(VisibleAnywhere)
-		FVector Velocity;
+	FVector Velocity;
 
 	UPROPERTY(VisibleAnywhere)
-		FVector Goal;
+	FVector Goal;
 
 	UPROPERTY(VisibleAnywhere)
-		FRotator GoalRotator;
+	FRotator GoalRotator;
+
+	UPROPERTY(VisibleAnywhere)
+	uint32 Uuid;
 };
