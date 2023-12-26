@@ -20,8 +20,8 @@ template<typename T>
 struct TBoidCell
 {
 	FORCEINLINE TBoidCell();
-	void Insert(T Element);
-	void Erase(T Element);
+	void Insert(T* Element);
+	void Erase(T* Element);
 	void ForEach(TFunctionRef<void(T*, std::vector<TBoidCell<T>*>&)> Executer);
 
 	FIntVector Index;
@@ -30,7 +30,7 @@ struct TBoidCell
 
 	std::vector<TBoidCell<T>*> NearestCells;
 
-	std::set<T> Elements;
+	std::set<T*> Elements;
 };
 
 template<typename T>
@@ -46,13 +46,13 @@ void TBoidCell<T>::ForEach(TFunctionRef<void(T*, std::vector<TBoidCell<T>*>&)> E
 }
 
 template<typename T>
-void TBoidCell<T>::Erase(T Element)
+void TBoidCell<T>::Erase(T* Element)
 {
 	Elements.erase(Element);
 }
 
 template<typename T>
-void TBoidCell<T>::Insert(T Element)
+void TBoidCell<T>::Insert(T* Element)
 {	
 	Elements.insert(Element);
 }
@@ -69,7 +69,8 @@ struct TBoidGrid
 
 public:
 	FORCEINLINE TBoidGrid(FIntVector Dimensions);
-	void Insert(T Element, FIntVector Index);
+	void Insert(T* Element, FIntVector Index);
+	void Erase(T* Element, FIntVector Index);
 	FORCEINLINE TBoidCell<T>& At(FIntVector Index);
 
 	FORCEINLINE bool InnerBoundary(FIntVector Index) const;
@@ -123,9 +124,15 @@ FORCEINLINE TBoidCell<T>& TBoidGrid<T>::At(FIntVector Index)
 }
 
 template<typename T>
-void TBoidGrid<T>::Insert(T Element, FIntVector Index)
+void TBoidGrid<T>::Insert(T* Element, FIntVector Index)
 {
 	At(Index).Insert(Element);
+}
+
+template<typename T>
+void TBoidGrid<T>::Erase(T* Element, FIntVector Index)
+{
+	At(Index).Erase(Element);
 }
 
 template<typename T>

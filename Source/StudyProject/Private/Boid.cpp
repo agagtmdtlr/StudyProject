@@ -15,6 +15,13 @@ FBoid::FBoid()
 
 }
 
+FBoid::FBoid(FVector NewPosition)
+	:FBoid()
+{
+	Position = NewPosition;
+}
+
+
 bool FBoid::operator<(const FBoid& rhs) const
 {
 	return Uuid < rhs.Uuid;

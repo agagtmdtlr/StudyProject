@@ -28,8 +28,10 @@ void ABoidSimulator::BeginPlay()
 
 	Resize(FIntVector(10, 10, 10));
 
-	FVector MinPosition = GetActorLocation() - BoxHalfSize;
-	FVector MaxPosition = GetActorLocation() + BoxHalfSize;
+	static FVector MinPosition;
+	MinPosition = GetActorLocation() - BoxHalfSize;
+	static FVector MaxPosition;
+	MaxPosition = GetActorLocation() + BoxHalfSize;
 
 	for (int i = 0; i < 100; ++i)
 	{
@@ -38,12 +40,11 @@ void ABoidSimulator::BeginPlay()
 		NewPosition.Y = FMath::RandRange(MinPosition.Y, MaxPosition.Y);
 		NewPosition.Z = FMath::RandRange(MinPosition.Z, MaxPosition.Z);
 
-		FBoid NewBoid;
-		BoidInstances.Add(NewBoid);
-
+		BoidInstances.Add(NewPosition);
 		
 
-		//Insert(&BoidInstances.Last() );
+		FBoid& NewBoid = BoidInstances.Last();
+		Insert(&NewBoid);
 	}
 }
 
@@ -69,7 +70,7 @@ void ABoidSimulator::Resize(FIntVector NewSize)
 
 	Grid.Release();
 	Grid = TUniquePtr<TBoidGrid<FBoid>>(new TBoidGrid<FBoid>(NewSize));
-	BoxHalfSize = FVector(NewSize) * GridSize;
+	BoxHalfSize = FVector(NewSize) / 2 * GridSize;
 
 	UWorld* World = GetWorld();
 
@@ -101,20 +102,19 @@ FBoid::BoidUuid ABoidSimulator::GeneratorBoidUuid()
 {
 	FBoid::BoidUuid currentUuid  = UuidGenerator;
 	UuidGenerator++;
-	return currentUuid
+	return currentUuid;
 }
 
-void ABoidSimulator::Insert(FVector BoidLocation)
+void ABoidSimulator::Insert(FBoid* NewBoid)
 {
 	FVector CenterPosition = GetActorLocation();
+
 	FVector MinLocation = CenterPosition - BoxHalfSize;
-	FVector LocalPosition = BoidLocation - MinLocation;
-	FIntVector LocalIndex(LocalPosition.GridSnap(GridSize) / GridSize);
-
-	FBoid NewBoid;
-	NewBoid.Position = BoidLocation;
-
+	static FVector LocalPosition;
+	LocalPosition = NewBoid->Position - MinLocation;
+	LocalPosition -= FVector(GridSize * 0.5f); // floor to lower
+	static FIntVector LocalIndex; 
+	LocalIndex = FIntVector(LocalPosition.GridSnap(GridSize) / GridSize);
 	Grid->Insert(NewBoid, LocalIndex);
-
 }
 

@@ -31,23 +31,23 @@ public:
 
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Component")
+	UPROPERTY(EditAnywhere, Category = "Component")
 	UInstancedStaticMeshComponent* ISMCompoent;
 
 	UPROPERTY(EditAnywhere, Category="Mesh")
 	UStaticMesh* MeshToInstance;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Grid")
+	UPROPERTY(EditAnywhere, Category = "Grid")
 	double GridSize; 
 
-	UPROPERTY(EditDefaultsOnly, Category = "Grid")
+	UPROPERTY(EditAnywhere, Category = "Grid")
 	FIntVector CellSize;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Boid")
+	UPROPERTY(EditAnywhere, Category = "Boid")
 	TSubclassOf<UBoidActionModel> BoidActionModel;
 
 private:
-	void Insert(FVector BoidLocation);
+	void Insert(FBoid* NewBoid);
 	void Resize(FIntVector NewSize);
 
 	FBoid::BoidUuid GeneratorBoidUuid();
@@ -60,5 +60,7 @@ private:
 	TArray<FTransform> InstanceMeshTranforms;
 
 	FBoid::BoidUuid UuidGenerator;
+
+	//std::set<FBoid*> boidSets;
 };
 

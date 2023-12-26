@@ -28,6 +28,7 @@ public:
 
 
 	FBoid();
+	FBoid(FVector NeewPosition);
 
 	bool operator<(const FBoid& rhs) const;
 
