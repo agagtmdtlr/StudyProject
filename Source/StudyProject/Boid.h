@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "StudyProject.h"
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include <cstdint>
