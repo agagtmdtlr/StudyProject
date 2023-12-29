@@ -60,7 +60,5 @@ private:
 	TArray<FTransform> InstanceMeshTranforms;
 
 	FBoid::BoidUuid UuidGenerator;
-
-	//std::set<FBoid*> boidSets;
 };
 

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Boid.h"
+#include "BoidGrid.h"
 #include "BoidActionModel.generated.h"
 
 
@@ -17,7 +19,7 @@ class STUDYPROJECT_API UBoidActionModel : public UObject
 	GENERATED_BODY()
 
 public:
-	void UpdateBoid(FBoid* Boid);
+	void UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& NearestCells);
 	
 private:
 	UPROPERTY(EditAnywhere, Category = "Range")

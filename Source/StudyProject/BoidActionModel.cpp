@@ -2,9 +2,15 @@
 
 
 #include "BoidActionModel.h"
-#include "Boid.h"
 
-void UBoidActionModel::UpdateBoid(FBoid* Boid)
+
+void UBoidActionModel::UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& NearestCells)
 {
+	for (const FBoidCell* Cell : NearestCells)
+	{
+		for (const FBoid* Neighbor : Cell->Elements)
+		{
 
+		}
+	}
 }

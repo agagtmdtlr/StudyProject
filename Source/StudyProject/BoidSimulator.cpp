@@ -17,6 +17,8 @@ ABoidSimulator::ABoidSimulator()
 	ISMCompoent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ISMCompoent"));
 	RootComponent = ISMCompoent;
 	ISMCompoent->SetStaticMesh(MeshToInstance);
+
+	//BoidActionModel = CreateDefaultSubobject<UBoidActionModel>(TEXT("BoidActionModel"));
 	
 	UuidGenerator = 0;
 }
@@ -29,23 +31,45 @@ void ABoidSimulator::BeginPlay()
 	Resize(FIntVector(10, 10, 10));
 
 	static FVector MinPosition;
-	MinPosition = GetActorLocation() - BoxHalfSize;
+	MinPosition = GetActorLocation() - BoxHalfSize + ( GridSize * 0.5f );
 	static FVector MaxPosition;
-	MaxPosition = GetActorLocation() + BoxHalfSize;
+	MaxPosition = GetActorLocation() + BoxHalfSize - ( GridSize * 0.5f );
 
-	for (int i = 0; i < 100; ++i)
+	int32 ElementCount = 10000;
+
+	BoidInstances.SetNum(ElementCount);
+	InstanceMeshTranforms.SetNum(ElementCount);
+
+
+	for (int i = 0; i < ElementCount; ++i)
 	{
 		FVector NewPosition;
 		NewPosition.X = FMath::RandRange(MinPosition.X, MaxPosition.X);
 		NewPosition.Y = FMath::RandRange(MinPosition.Y, MaxPosition.Y);
 		NewPosition.Z = FMath::RandRange(MinPosition.Z, MaxPosition.Z);
 
-		BoidInstances.Add(NewPosition);
 		
+		FBoid& NewBoid = BoidInstances[i];
+		NewBoid.Position = NewPosition;
+		NewBoid.Uuid = GeneratorBoidUuid();
+		
+		FTransform& Transform = InstanceMeshTranforms[NewBoid.Uuid];
+		Transform = FTransform(NewPosition);
 
-		FBoid& NewBoid = BoidInstances.Last();
+
 		Insert(&NewBoid);
 	}
+
+	// update instnace Transform
+	for (FBoid& Instance : BoidInstances)
+	{
+		FTransform& Transform = InstanceMeshTranforms[Instance.Uuid];
+		Transform = FTransform(Instance.Position);
+	}
+
+	ISMCompoent->AddInstances(InstanceMeshTranforms, false, true);
+
+	
 }
 
 // Called every frame
@@ -54,6 +78,25 @@ void ABoidSimulator::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UWorld* World = GetWorld();	
+
+	UBoidActionModel* ActionModel = Cast<UBoidActionModel>(BoidActionModel);
+	STCHECK(ActionModel == nullptr);
+
+	for (FBoidCell& Cell : Grid->Cells)
+	{
+		if (Cell.Elements.empty()) continue;
+
+		TArray<FBoidCell*> NearestCells = Grid->GetNearestCells(Cell.Index);
+
+		for (FBoid* Element : Cell.Elements)
+		{
+			ActionModel->UpdateBoid(Element, NearestCells);
+		}
+
+	}
+
+
+	ISMCompoent->BatchUpdateInstancesTransforms(0, InstanceMeshTranforms, true);
 }
 
 
@@ -115,6 +158,7 @@ void ABoidSimulator::Insert(FBoid* NewBoid)
 	LocalPosition -= FVector(GridSize * 0.5f); // floor to lower
 	static FIntVector LocalIndex; 
 	LocalIndex = FIntVector(LocalPosition.GridSnap(GridSize) / GridSize);
+	
 	Grid->Insert(NewBoid, LocalIndex);
 }
 

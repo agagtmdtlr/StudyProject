@@ -75,7 +75,7 @@ public:
 
 	FORCEINLINE bool InnerBoundary(FIntVector Index) const;
 
-	std::vector<TBoidCell<T>*> GetNearestCells(FIntVector Index);
+	TArray<TBoidCell<T>*> GetNearestCells(FIntVector Index);
 
 	FIntVector Size;
 
@@ -98,10 +98,11 @@ FORCEINLINE bool TBoidGrid<T>::InnerBoundary(FIntVector Index) const
 }
 
 template<typename T>
-std::vector<TBoidCell<T>*> TBoidGrid<T>::GetNearestCells(FIntVector Index)
+TArray<TBoidCell<T>*> TBoidGrid<T>::GetNearestCells(FIntVector Index)
 {
-	std::vector<TBoidCell<T>*> NearestCells;
-	NearestCells.reserve(27);
+	TArray<TBoidCell<T>*> NearestCells;
+	//std::vector<TBoidCell<T>*> NearestCells;
+	NearestCells.Reserve(27);
 
 	constexpr int dr[3] = { -1,0,1 };
 	for (int i = 0; i < 27; ++i)
@@ -109,7 +110,8 @@ std::vector<TBoidCell<T>*> TBoidGrid<T>::GetNearestCells(FIntVector Index)
 		FIntVector NewIndex(Index.X + dr[ i % 3 ], Index.Y + dr[(i % 9) / 3], Index.Z + dr[i / 9]);
 		if (InnerBoundary(NewIndex))
 		{
-			NearestCells.push_back(&At(NewIndex));
+			NearestCells.Add(&At(NewIndex));
+			//NearestCells.push_back(&At(NewIndex));
 			//At(NewIndex).Index = NewIndex;
 		}
 	}
@@ -120,18 +122,21 @@ std::vector<TBoidCell<T>*> TBoidGrid<T>::GetNearestCells(FIntVector Index)
 template<typename T>
 FORCEINLINE TBoidCell<T>& TBoidGrid<T>::At(FIntVector Index)
 {
+	check(InnerBoundary(Index));
 	return Cells[ Size.X * ( Size.Y  * Index.Z + Index.Y ) + Index.X];
 }
 
 template<typename T>
 void TBoidGrid<T>::Insert(T* Element, FIntVector Index)
 {
+	check(InnerBoundary(Index));
 	At(Index).Insert(Element);
 }
 
 template<typename T>
 void TBoidGrid<T>::Erase(T* Element, FIntVector Index)
 {
+	check(InnerBoundary(Index));
 	At(Index).Erase(Element);
 }
 
@@ -141,14 +146,15 @@ FORCEINLINE TBoidGrid<T>::TBoidGrid(FIntVector Dimensions)
 {
 	Cells.resize( Dimensions.X * Dimensions.Y * Dimensions.Z);
 
-	int size = Cells.size();
+	int CellSize = Cells.size();
 
-	int planeSize = Dimensions.X * Dimensions.Y;
-	for (int i = 0; i < size; i++)
+	int PlaneSize = Dimensions.X * Dimensions.Y;
+	for (int i = 0; i < CellSize; i++)
 	{
-		FIntVector NewIndex(i % Dimensions.X, ( i % planeSize ) / Dimensions.Y, i / planeSize );
+		FIntVector NewIndex(i % Dimensions.X, ( i % PlaneSize) / Dimensions.Y, i / PlaneSize);
 		Cells[i].Index = NewIndex;
 	}
 }
 
+using FBoidCell = TBoidCell<FBoid>;
 using FBoidGrid = TBoidGrid<FBoid>;
