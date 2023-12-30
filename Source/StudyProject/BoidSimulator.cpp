@@ -90,7 +90,7 @@ void ABoidSimulator::Tick(float DeltaTime)
 
 		for (FBoid* Element : Cell.Elements)
 		{
-			ActionModel->UpdateBoid(Element, NearestCells);
+			ActionModel->UpdateBoid(Element, NearestCells, DeltaTime);
 		}
 
 	}

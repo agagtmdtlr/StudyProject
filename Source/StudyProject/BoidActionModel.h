@@ -19,15 +19,28 @@ class STUDYPROJECT_API UBoidActionModel : public UObject
 	GENERATED_BODY()
 
 public:
-	void UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& NearestCells);
+	UBoidActionModel();
+
+	void UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& NearestCells, float DeltaTime);
 	
 private:
-	UPROPERTY(EditAnywhere, Category = "Range")
-		double SeparationRadius;
+	UPROPERTY(VisibleAnywhere, Category = "Range")
+	double SeparationRadius;
+
+	UPROPERTY(VisibleAnywhere, Category = "Range")
+	double CohesionRadius;
 
 	UPROPERTY(EditAnywhere, Category = "Range")
-		double CohesionRadius;
+	double AlignmentSpeed;
 
-	UPROPERTY(EditAnywhere, Category = "Range")
-		double AlignmentSpeed;
+private:
+	FVector MinPosition;
+	FVector MaxPosition;
+
+	double SeparationRadiusSquare;
+
+	double CohesionRadiusSquare;
+
+	int32 FrameIndex;
+
 };
