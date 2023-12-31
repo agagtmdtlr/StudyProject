@@ -18,9 +18,10 @@ ABoidSimulator::ABoidSimulator()
 	RootComponent = ISMCompoent;
 	ISMCompoent->SetStaticMesh(MeshToInstance);
 
-	//BoidActionModel = CreateDefaultSubobject<UBoidActionModel>(TEXT("BoidActionModel"));
+	BoidActionModel = CreateDefaultSubobject<UBoidActionModel>(TEXT("BoidActionModel"));
 	
 	UuidGenerator = 0;
+
 }
 
 // Called when the game starts or when spawned
@@ -28,6 +29,12 @@ void ABoidSimulator::BeginPlay()
 {
 	Super::BeginPlay();
 
+	BoidActionModel->UpdateConstraint(GridSize);
+	//if (ActionModel != nullptr)
+	//{
+	//	ActionModel->UpdateConstraint(GridSize);
+	//
+	//}
 	Resize(FIntVector(10, 10, 10));
 
 	static FVector MinPosition;
@@ -79,9 +86,6 @@ void ABoidSimulator::Tick(float DeltaTime)
 
 	UWorld* World = GetWorld();	
 
-	UBoidActionModel* ActionModel = Cast<UBoidActionModel>(BoidActionModel);
-	STCHECK(ActionModel == nullptr);
-
 	for (FBoidCell& Cell : Grid->Cells)
 	{
 		if (Cell.Elements.empty()) continue;
@@ -90,9 +94,8 @@ void ABoidSimulator::Tick(float DeltaTime)
 
 		for (FBoid* Element : Cell.Elements)
 		{
-			ActionModel->UpdateBoid(Element, NearestCells, DeltaTime);
+			BoidActionModel->UpdateBoid(Element, NearestCells, DeltaTime);
 		}
-
 	}
 
 
@@ -107,7 +110,6 @@ void ABoidSimulator::Resize(FIntVector NewSize)
 	{
 		STLOG_S(Warning);
 	}
-
 
 	CellSize = NewSize;
 

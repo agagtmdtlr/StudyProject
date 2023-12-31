@@ -13,15 +13,17 @@ struct FBoid;
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable, config = Game, meta = (ShortTooltip = "The BoidActionModel is an object that defines how a Boid is simulated."))
 class STUDYPROJECT_API UBoidActionModel : public UObject
 {
 	GENERATED_BODY()
 
 public:
 	UBoidActionModel();
+	
+	virtual void UpdateConstraint(double GridSize);
 
-	void UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& NearestCells, float DeltaTime);
+	virtual void UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& NearestCells, float DeltaTime);
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Range")

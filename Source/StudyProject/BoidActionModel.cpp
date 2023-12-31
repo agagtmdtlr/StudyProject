@@ -9,6 +9,12 @@ UBoidActionModel::UBoidActionModel()
 	FrameIndex = 0;
 }
 
+void UBoidActionModel::UpdateConstraint(double GridSize)
+{
+	CohesionRadiusSquare = GridSize;
+	SeparationRadiusSquare = GridSize * 0.3;
+}
+
 void UBoidActionModel::UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& NearestCells, float DeltaTime)
 {
 	FVector Goal = FVector::ZeroVector;
@@ -53,4 +59,7 @@ void UBoidActionModel::UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& Nearest
 	NewVelocity = NewVelocity.GetSafeNormal();
 
 	Boid->Velocity = FMath::Lerp(Boid->Velocity.GetSafeNormal(), NewVelocity, FVector(DeltaTime));
+	//Boid->GoalRotator = FQuat::MakeFromRotationVector(Boid->Velocity);
+	//Boid->GoalRotator.Quaternion();
+
 }

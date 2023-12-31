@@ -10,7 +10,6 @@
 #include "BoidSimulator.generated.h"
 
 class UInstancedStaticMeshComponent;
-struct BoidContainer;
 
 UCLASS()
 class STUDYPROJECT_API ABoidSimulator : public AActor
@@ -44,7 +43,8 @@ private:
 	FIntVector CellSize;
 
 	UPROPERTY(EditAnywhere, Category = "Boid")
-	TSubclassOf<UBoidActionModel> BoidActionModel;
+	UBoidActionModel* BoidActionModel;
+	 
 
 private:
 	void Insert(FBoid* NewBoid);
