@@ -7,9 +7,9 @@
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
 #include "STAnimInstance.h"
+#include "STCharacterStatComponent.h"
 #include "STWeapon.h"
 #include "DrawDebugHelpers.h"
-#include "BoidGrid.h"
 #include <vector>
 
 // Sets default values
@@ -21,7 +21,6 @@ ASTCharacter::ASTCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-
 	UCapsuleComponent* CapulseComponent = GetCapsuleComponent();
 	CapulseComponent->SetCapsuleHalfHeight(85.5f);
 
@@ -29,7 +28,6 @@ ASTCharacter::ASTCharacter()
 
 	MaxCombo = 4;
 	AttackEndComboState();
-
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("STCharacter"));
 
@@ -120,6 +118,8 @@ ASTCharacter::ASTCharacter()
 	ArmRotationSpeed = 10.0f;
 
 	GetCharacterMovement()->JumpZVelocity = 800.0f;
+
+	CharacterStat = CreateDefaultSubobject<USTCharacterStatComponent>(TEXT("CHARACTERSTAT"));
 }
 
 // Called when the game starts or when spawned
@@ -237,6 +237,12 @@ void ASTCharacter::PostInitializeComponents()
 		});
 
 	STAnim->OnAttackHitCheck.AddUObject(this, &ASTCharacter::AttackCheck);
+
+	CharacterStat->OnHPIsZero.AddLambda([this]()->void {
+		ST_LOG(Warning, TEXT("OnHpIsZero"));
+		STAnim->SetDeadAnim();
+		SetActorEnableCollision(false);
+		});
 }
 
 // Called to bind functionality to input
@@ -304,11 +310,14 @@ float ASTCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AC
 	float FinalDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	ST_LOG(Warning, TEXT("Actor : %s took Damage : %f"), *GetName(), FinalDamage);
 
-	if (FinalDamage > 0.0f)
-	{
-		STAnim->SetDeadAnim();
-		SetActorEnableCollision(false);
-	}
+	CharacterStat->SetDamage(FinalDamage);
+
+	//if (FinalDamage > 0.0f)
+	//{
+	//	STAnim->SetDeadAnim();
+	//	SetActorEnableCollision(false);
+	//}
+
 
 	return FinalDamage;
 }
@@ -481,7 +490,7 @@ void ASTCharacter::AttackCheck()
 			ST_LOG(Warning, TEXT("Hit Actor Name : %s"), *Actor->GetName());
 
 			FDamageEvent DamageEvent;
-			Actor->TakeDamage(50.0f, DamageEvent, GetController(), this);
+			Actor->TakeDamage( CharacterStat->GetAttack(), DamageEvent, GetController(), this);
 		}
 	}
 }

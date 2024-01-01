@@ -63,6 +63,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category=Weapon)
 	class ASTWeapon* CurrentWeapon;
 
+	UPROPERTY(VisibleAnywhere, Category=Stat)
+	class USTCharacterStatComponent* CharacterStat;
+
 	// Called Event
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;	
 

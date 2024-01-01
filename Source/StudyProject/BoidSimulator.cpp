@@ -22,6 +22,7 @@ ABoidSimulator::ABoidSimulator()
 	
 	UuidGenerator = 0;
 
+
 }
 
 // Called when the game starts or when spawned
