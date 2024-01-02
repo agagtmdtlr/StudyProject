@@ -22,6 +22,8 @@ ABoidSimulator::ABoidSimulator()
 	
 	UuidGenerator = 0;
 
+	ElementCount = 100;
+
 
 }
 
@@ -36,14 +38,27 @@ void ABoidSimulator::BeginPlay()
 	//	ActionModel->UpdateConstraint(GridSize);
 	//
 	//}
+
+	if (ISMCompoent != nullptr)
+	{
+		auto Mesh = ISMCompoent->GetStaticMesh();
+		if (Mesh != nullptr)
+		{
+			FBox MeshBoundary = Mesh->GetBoundingBox();
+			MeshBoundary.GetExtent();
+
+			GridSize = MeshBoundary.GetExtent().Length();
+		}
+
+		
+	}
+
 	Resize(FIntVector(10, 10, 10));
 
 	static FVector MinPosition;
 	MinPosition = GetActorLocation() - BoxHalfSize + ( GridSize * 0.5f );
 	static FVector MaxPosition;
 	MaxPosition = GetActorLocation() + BoxHalfSize - ( GridSize * 0.5f );
-
-	int32 ElementCount = 10000;
 
 	BoidInstances.SetNum(ElementCount);
 	InstanceMeshTranforms.SetNum(ElementCount);
@@ -77,6 +92,7 @@ void ABoidSimulator::BeginPlay()
 
 	ISMCompoent->AddInstances(InstanceMeshTranforms, false, true);
 
+
 	
 }
 
@@ -98,6 +114,18 @@ void ABoidSimulator::Tick(float DeltaTime)
 			BoidActionModel->UpdateBoid(Element, NearestCells, DeltaTime);
 		}
 	}
+
+
+
+	for (FBoid& Instance : BoidInstances)
+	{
+		FTransform& Transform = InstanceMeshTranforms[Instance.Uuid];
+
+		FRotator NewRotator = FRotationMatrix::MakeFromZY(Instance.Velocity.GetSafeNormal(), FVector(0, 1, 0)).Rotator();
+
+		Transform = FTransform(NewRotator ,Instance.Position);
+	}
+
 
 
 	ISMCompoent->BatchUpdateInstancesTransforms(0, InstanceMeshTranforms, true);

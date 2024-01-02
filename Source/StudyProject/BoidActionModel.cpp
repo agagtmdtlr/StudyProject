@@ -15,6 +15,12 @@ void UBoidActionModel::UpdateConstraint(double GridSize)
 	SeparationRadiusSquare = GridSize * 0.3;
 }
 
+
+void UBoidActionModel::SetBoundary(FBox NewBoundary)
+{
+	Boundary = NewBoundary;
+}
+
 void UBoidActionModel::UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& NearestCells, float DeltaTime)
 {
 	FVector Goal = FVector::ZeroVector;
@@ -28,6 +34,9 @@ void UBoidActionModel::UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& Nearest
 	{
 		for (const FBoid* Neighbor : Cell->Elements)
 		{
+			if( Neighbor == Boid )
+				continue;
+
 			FVector toNeighbor = Neighbor->Position - Boid->Position;
 
 			double NeighborLengthSq = toNeighbor.SquaredLength();
@@ -59,6 +68,8 @@ void UBoidActionModel::UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& Nearest
 	NewVelocity = NewVelocity.GetSafeNormal();
 
 	Boid->Velocity = FMath::Lerp(Boid->Velocity.GetSafeNormal(), NewVelocity, FVector(DeltaTime));
+	
+
 	//Boid->GoalRotator = FQuat::MakeFromRotationVector(Boid->Velocity);
 	//Boid->GoalRotator.Quaternion();
 

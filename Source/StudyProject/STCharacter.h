@@ -95,6 +95,11 @@ public:
 	UInputMappingContext* MappingContext;
 
 
+	//
+	UPROPERTY(VisibleAnywhere, Category=UI)
+	class UWidgetComponent* HPBarWidget;
+
+
 	float Acceleration = 0.5f;
 
 private:

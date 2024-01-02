@@ -35,6 +35,7 @@ public:
 
 	FORCEINLINE bool IsValid() const { return Uuid != std::numeric_limits<BoidUuid>::max(); }
 
+
 public:	
 	UPROPERTY(VisibleAnywhere)
 	FVector Position;

@@ -22,6 +22,7 @@ public:
 	UBoidActionModel();
 	
 	virtual void UpdateConstraint(double GridSize);
+	void SetBoundary(FBox NewBoundary);
 
 	virtual void UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& NearestCells, float DeltaTime);
 	
@@ -36,8 +37,7 @@ private:
 	double AlignmentSpeed;
 
 private:
-	FVector MinPosition;
-	FVector MaxPosition;
+	FBox Boundary;
 
 	double SeparationRadiusSquare;
 

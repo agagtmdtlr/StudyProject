@@ -26,3 +26,4 @@ bool FBoid::operator<(const FBoid& rhs) const
 {
 	return Uuid < rhs.Uuid;
 }
+

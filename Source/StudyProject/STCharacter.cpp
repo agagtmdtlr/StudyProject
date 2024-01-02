@@ -9,6 +9,9 @@
 #include "STAnimInstance.h"
 #include "STCharacterStatComponent.h"
 #include "STWeapon.h"
+
+#include "Components//WidgetComponent.h" // UMG
+
 #include "DrawDebugHelpers.h"
 #include <vector>
 
@@ -65,51 +68,54 @@ ASTCharacter::ASTCharacter()
 		SkeletaMeshComponent->SetAnimInstanceClass(BP_WarriorAnim.Class);
 	}
 
-	// Dynamic Input Asset
-	static ConstructorHelpers::FObjectFinder<UInputAction> IA_Move(TEXT("/Game/STPlayer/Input/Actions/IA_Move.IA_Move"));
-	if (IA_Move.Succeeded())
+	// Enhanced Input Initialization
 	{
-		MovementAction = IA_Move.Object;
-	}
+		// Dynamic Input Asset
+		static ConstructorHelpers::FObjectFinder<UInputAction> IA_Move(TEXT("/Game/STPlayer/Input/Actions/IA_Move.IA_Move"));
+		if (IA_Move.Succeeded())
+		{
+			MovementAction = IA_Move.Object;
+		}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> IA_Look(TEXT("/Game/STPlayer/Input/Actions/IA_Look.IA_Look"));
-	if (IA_Look.Succeeded())
-	{
-		LookAction = IA_Look.Object;
-	}
+		static ConstructorHelpers::FObjectFinder<UInputAction> IA_Look(TEXT("/Game/STPlayer/Input/Actions/IA_Look.IA_Look"));
+		if (IA_Look.Succeeded())
+		{
+			LookAction = IA_Look.Object;
+		}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> IA_ViewChange(TEXT("/Game/STPlayer/Input/Actions/IA_ViewChange.IA_ViewChange"));
-	if (IA_ViewChange.Succeeded())
-	{
-		ViewChangeAction = IA_ViewChange.Object;
-	}
+		static ConstructorHelpers::FObjectFinder<UInputAction> IA_ViewChange(TEXT("/Game/STPlayer/Input/Actions/IA_ViewChange.IA_ViewChange"));
+		if (IA_ViewChange.Succeeded())
+		{
+			ViewChangeAction = IA_ViewChange.Object;
+		}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> IA_Jump(TEXT("/Game/STPlayer/Input/Actions/IA_Jump.IA_Jump"));
-	if (IA_Jump.Succeeded())
-	{
-		JumpAction = IA_Jump.Object;
-	}
+		static ConstructorHelpers::FObjectFinder<UInputAction> IA_Jump(TEXT("/Game/STPlayer/Input/Actions/IA_Jump.IA_Jump"));
+		if (IA_Jump.Succeeded())
+		{
+			JumpAction = IA_Jump.Object;
+		}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> IA_Attack(TEXT("/Game/ThirdPerson/Input/Actions/IA_Attack.IA_Attack"));
-	if (IA_Attack.Succeeded())
-	{
-		AttackAction = IA_Attack.Object;
-	}
+		static ConstructorHelpers::FObjectFinder<UInputAction> IA_Attack(TEXT("/Game/ThirdPerson/Input/Actions/IA_Attack.IA_Attack"));
+		if (IA_Attack.Succeeded())
+		{
+			AttackAction = IA_Attack.Object;
+		}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> IA_Shift(TEXT("/Game/STPlayer/Input/Actions/IA_Shift.IA_Shift"));
-	if (IA_Shift.Succeeded())
-	{
-		AccelerateAction = IA_Shift.Object;
-	}
+		static ConstructorHelpers::FObjectFinder<UInputAction> IA_Shift(TEXT("/Game/STPlayer/Input/Actions/IA_Shift.IA_Shift"));
+		if (IA_Shift.Succeeded())
+		{
+			AccelerateAction = IA_Shift.Object;
+		}
 
-	static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_StudProject(TEXT("/Game/STPlayer/Input/IMC_StudyProject.IMC_StudyProject"));
-	if (IMC_StudProject.Succeeded())
-	{
-		MappingContext = IMC_StudProject.Object;
-	}
-	else
-	{
-		ST_LOG(Warning, TEXT("Not Exist MAPPING CONTEXT"));
+		static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_StudProject(TEXT("/Game/STPlayer/Input/IMC_StudyProject.IMC_StudyProject"));
+		if (IMC_StudProject.Succeeded())
+		{
+			MappingContext = IMC_StudProject.Object;
+		}
+		else
+		{
+			ST_LOG(Warning, TEXT("Not Exist MAPPING CONTEXT"));
+		}
 	}
 
 	SetControlMode(EControlMode::TopView);
@@ -120,6 +126,25 @@ ASTCharacter::ASTCharacter()
 	GetCharacterMovement()->JumpZVelocity = 800.0f;
 
 	CharacterStat = CreateDefaultSubobject<USTCharacterStatComponent>(TEXT("CHARACTERSTAT"));
+
+	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HBBARWIDGET"));
+	HPBarWidget->SetupAttachment(GetMesh());
+
+	HPBarWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
+	HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
+
+	// BluePrintClass
+	static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD(TEXT("/Game/UI/UI_HPBar.UI_HPBar_C"));
+	if (UI_HUD.Succeeded())
+	{
+		HPBarWidget->SetWidgetClass(UI_HUD.Class);
+		HPBarWidget->SetDrawSize(FVector2D(150.0f, 50.0f));
+
+	}
+
+
+
+
 }
 
 // Called when the game starts or when spawned

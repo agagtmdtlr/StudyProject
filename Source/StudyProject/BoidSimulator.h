@@ -44,6 +44,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Boid")
 	UBoidActionModel* BoidActionModel;
+
+	UPROPERTY(EditAnywhere, Category = Boid)
+	int32 ElementCount;
 	 
 
 private:
