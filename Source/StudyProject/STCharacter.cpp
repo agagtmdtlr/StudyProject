@@ -10,7 +10,8 @@
 #include "STCharacterStatComponent.h"
 #include "STWeapon.h"
 
-#include "Components//WidgetComponent.h" // UMG
+#include "Components/WidgetComponent.h" // UMG
+#include "STCharacterWidget.h"
 
 #include "DrawDebugHelpers.h"
 #include <vector>
@@ -130,7 +131,13 @@ ASTCharacter::ASTCharacter()
 	HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HBBARWIDGET"));
 	HPBarWidget->SetupAttachment(GetMesh());
 
-	HPBarWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 180.0f));
+	float HPBarOffsetY = 0.0f;
+	{
+		FBoxSphereBounds BoxSphereBound = SKM_Quinn.Object->GetBounds();
+		HPBarOffsetY = BoxSphereBound.SphereRadius * 2.0f + 5.0f;
+	}
+
+	HPBarWidget->SetRelativeLocation(FVector(0.0f, 0.0f, HPBarOffsetY));
 	HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
 	// BluePrintClass
@@ -139,7 +146,6 @@ ASTCharacter::ASTCharacter()
 	{
 		HPBarWidget->SetWidgetClass(UI_HUD.Class);
 		HPBarWidget->SetDrawSize(FVector2D(150.0f, 50.0f));
-
 	}
 
 
@@ -159,6 +165,12 @@ void ASTCharacter::BeginPlay()
 	//	CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
 	//}
 
+	// 위젯 초기화 시점이 PostInitializeComponent => BeginPlay로 변경됨
+	USTCharacterWidget* CharacterWidget = Cast<USTCharacterWidget>(HPBarWidget->GetUserWidgetObject());
+	if (CharacterWidget != nullptr)
+	{
+		CharacterWidget->BindCharacterStat(CharacterStat);
+	}
 }
 
 void ASTCharacter::SetControlMode(EControlMode ControlMode)
@@ -268,6 +280,9 @@ void ASTCharacter::PostInitializeComponents()
 		STAnim->SetDeadAnim();
 		SetActorEnableCollision(false);
 		});
+
+	
+
 }
 
 // Called to bind functionality to input

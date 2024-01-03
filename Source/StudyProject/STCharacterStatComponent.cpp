@@ -42,7 +42,7 @@ void USTCharacterStatComponent::SetNewLevel(int32 NewLevel)
 	if (CurrentStatData != nullptr)
 	{
 		Level = NewLevel;
-		CurrentHP = CurrentStatData->MaxHP;
+		SetHP(CurrentStatData->MaxHP);
 	}
 	else
 	{
@@ -53,16 +53,32 @@ void USTCharacterStatComponent::SetNewLevel(int32 NewLevel)
 void USTCharacterStatComponent::SetDamage(float NewDamage)
 {
 	STCHECK(CurrentStatData != nullptr);
-	CurrentHP = FMath::Clamp<float>(CurrentHP - NewDamage, 0.0f, CurrentStatData->MaxHP);
-	ST_LOG(Warning, TEXT("CurrentHP : (%f)"), CurrentHP);
-	if (CurrentHP <= 0.0f)
+	SetHP(FMath::Clamp<float>(CurrentHP - NewDamage, 0.0f, CurrentStatData->MaxHP));
+	
+}
+
+void USTCharacterStatComponent::SetHP(float NewHP)
+{
+	CurrentHP = NewHP;
+	OnHPChanged.Broadcast();
+	// KINDA_SMALL_NUMBER : float precision error
+	if (CurrentHP <= KINDA_SMALL_NUMBER)
 	{
 		OnHPIsZero.Broadcast();
 	}
 }
+
 
 float USTCharacterStatComponent::GetAttack()
 {
 	STCHECK(CurrentStatData != nullptr, 0.0f);
 	return CurrentStatData->Attack;
 }
+
+float USTCharacterStatComponent::GetHPRatio()
+{
+	STCHECK(CurrentStatData != nullptr, 0.0f);
+
+	return (CurrentStatData->MaxHP < KINDA_SMALL_NUMBER) ? 0.0f : ( CurrentHP / CurrentStatData->MaxHP );
+}
+

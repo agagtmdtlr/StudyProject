@@ -66,6 +66,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category=Stat)
 	class USTCharacterStatComponent* CharacterStat;
 
+	UPROPERTY(VisibleAnywhere, Category = UI)
+	class UWidgetComponent* HPBarWidget;
+
 	// Called Event
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;	
 
@@ -95,9 +98,7 @@ public:
 	UInputMappingContext* MappingContext;
 
 
-	//
-	UPROPERTY(VisibleAnywhere, Category=UI)
-	class UWidgetComponent* HPBarWidget;
+	
 
 
 	float Acceleration = 0.5f;
