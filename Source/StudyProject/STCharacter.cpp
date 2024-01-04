@@ -13,6 +13,8 @@
 #include "Components/WidgetComponent.h" // UMG
 #include "STCharacterWidget.h"
 
+#include "STAIController.h"
+
 #include "DrawDebugHelpers.h"
 #include <vector>
 
@@ -149,6 +151,8 @@ ASTCharacter::ASTCharacter()
 	}
 
 
+	AIControllerClass = ASTAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 
 }
