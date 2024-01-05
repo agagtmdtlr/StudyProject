@@ -9,7 +9,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 
 const FName ASTAIController::HomePosKey(TEXT("HomePos"));
-const FName ASTAIController::PatrolPosKey(TEXT("HomePos"));
+const FName ASTAIController::PatrolPosKey(TEXT("PatrolPos"));
 
 ASTAIController::ASTAIController()
 {
