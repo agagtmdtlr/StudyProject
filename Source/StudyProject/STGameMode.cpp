@@ -15,7 +15,7 @@ ASTGameMode::ASTGameMode()
 
 void ASTGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	ST_LOG(Warning, TEXT("PostLogin Begin"));
+	STLOG(Warning, TEXT("PostLogin Begin"));
 /*
 * 
 1. create player controller
@@ -24,7 +24,7 @@ void ASTGameMode::PostLogin(APlayerController* NewPlayer)
 4. begin game
 */
 	Super::PostLogin(NewPlayer);
-	ST_LOG(Warning, TEXT("PostLogin Eng"));
+	STLOG(Warning, TEXT("PostLogin Eng"));
 
 	// BP Pawn Class Asset
 	//static ConstructorHelpers::FClassFinder<APawn> bpPawnC(TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.BP_ThirdPersonCharacter_C"));

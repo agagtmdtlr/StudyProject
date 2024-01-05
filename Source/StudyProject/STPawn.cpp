@@ -126,7 +126,7 @@ void ASTPawn::PawnClientRestart()
 
 void ASTPawn::ScrollMovement(const FInputActionValue& ActionValue)
 {
-	ST_LOG(Warning, TEXT("%f %f %f"), ActionValue[0], ActionValue[1], ActionValue[2]);
+	STLOG(Warning, TEXT("%f %f %f"), ActionValue[0], ActionValue[1], ActionValue[2]);
 
 	AddMovementInput(GetActorForwardVector(), ActionValue[1]);
 	AddMovementInput(GetActorRightVector(), ActionValue[0]);

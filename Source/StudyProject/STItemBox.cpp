@@ -80,7 +80,7 @@ void ASTItemBox::OnCharacterOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		}
 		else
 		{
-			ST_LOG(Warning, TEXT("%s can't equip weapon currently"), *STCharacter->GetName());
+			STLOG(Warning, TEXT("%s can't equip weapon currently"), *STCharacter->GetName());
 		}
 	}
 }

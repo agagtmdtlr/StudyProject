@@ -61,7 +61,7 @@ ASTCharacter::ASTCharacter()
 	}
 	else
 	{
-		ST_LOG(Warning, TEXT("Not Exist skeletalmesh"));
+		STLOG(Warning, TEXT("Not Exist skeletalmesh"));
 	}
 
 	SkeletaMeshComponent->SetAnimationMode(EAnimationMode::AnimationBlueprint);
@@ -117,7 +117,7 @@ ASTCharacter::ASTCharacter()
 		}
 		else
 		{
-			ST_LOG(Warning, TEXT("Not Exist MAPPING CONTEXT"));
+			STLOG(Warning, TEXT("Not Exist MAPPING CONTEXT"));
 		}
 	}
 
@@ -266,7 +266,7 @@ void ASTCharacter::PostInitializeComponents()
 	// 어택 명령=> IsComboInputOn(true)
 	// 노티파이 발생 => check(IsComboInputOn) => Increment(CurrentCombo) => JumpSection
 	STAnim->OnNextAttackCheck.AddLambda([this]()->void {
-		ST_LOG(Warning, TEXT("OnNextAttackCheck"));
+		STLOG(Warning, TEXT("OnNextAttackCheck"));
 		CanNextCombo = false;
 
 		if (IsComboInputOn)
@@ -280,7 +280,7 @@ void ASTCharacter::PostInitializeComponents()
 	STAnim->OnAttackHitCheck.AddUObject(this, &ASTCharacter::AttackCheck);
 
 	CharacterStat->OnHPIsZero.AddLambda([this]()->void {
-		ST_LOG(Warning, TEXT("OnHpIsZero"));
+		STLOG(Warning, TEXT("OnHpIsZero"));
 		STAnim->SetDeadAnim();
 		SetActorEnableCollision(false);
 		});
@@ -313,7 +313,7 @@ void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		const TArray<FEnhancedActionKeyMapping>& Mappings = MappingContext->GetMappings();
 		for (const FEnhancedActionKeyMapping& Map : Mappings)
 		{
-			ST_LOG(Warning, TEXT("Action Name : %s , Key : %s "), *(Map.Action->GetName()) , *(Map.Key.ToString()));			
+			STLOG(Warning, TEXT("Action Name : %s , Key : %s "), *(Map.Action->GetName()) , *(Map.Key.ToString()));			
 		}
 		
 		enhancedInputComponent->BindAction(ViewChangeAction, ETriggerEvent::Started, this, &ASTCharacter::ChangeViewMode);
@@ -352,7 +352,7 @@ void ASTCharacter::PawnClientRestart()
 float ASTCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float FinalDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-	ST_LOG(Warning, TEXT("Actor : %s took Damage : %f"), *GetName(), FinalDamage);
+	STLOG(Warning, TEXT("Actor : %s took Damage : %f"), *GetName(), FinalDamage);
 
 	CharacterStat->SetDamage(FinalDamage);
 
@@ -411,7 +411,7 @@ void ASTCharacter::CameraMovement(const FInputActionValue& Value)
 void ASTCharacter::ChangeViewMode(const FInputActionValue& Value)
 {
 	bool IsPressed = Value.Get<bool>();
-	ST_LOG(Warning, TEXT("%s"), *FString(IsPressed ? "True" : "False"));
+	STLOG(Warning, TEXT("%s"), *FString(IsPressed ? "True" : "False"));
 
 	if (IsPressed)
 	{
@@ -531,7 +531,7 @@ void ASTCharacter::AttackCheck()
 	{
 		if (AActor* Actor = HitResult.GetActor(); Actor != nullptr)
 		{
-			ST_LOG(Warning, TEXT("Hit Actor Name : %s"), *Actor->GetName());
+			STLOG(Warning, TEXT("Hit Actor Name : %s"), *Actor->GetName());
 
 			FDamageEvent DamageEvent;
 			Actor->TakeDamage( CharacterStat->GetAttack(), DamageEvent, GetController(), this);

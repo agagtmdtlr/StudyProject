@@ -8,7 +8,7 @@ public class StudyProject : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG","NavigationSystem"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG","NavigationSystem", "AIModule"});
 
 		PublicDependencyModuleNames.AddRange(new string[] { "EnhancedInput" });
 

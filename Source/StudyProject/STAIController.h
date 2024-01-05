@@ -15,13 +15,26 @@ class STUDYPROJECT_API ASTAIController : public AAIController
 	GENERATED_BODY()
 	
 public:
+	// TODO:: Blackboard 속성이름이 하드코딩 됨, 개선 필요...
+	static const FName HomePosKey;
+	static const FName PatrolPosKey;
+
+
 	ASTAIController();
-	virtual void Possess(APawn* InPawn) override;
-	virtual void UnPossess() override;
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
 
 private:
 	void OnRepeatTimer();
 
 	FTimerHandle RepeatTimerHandle;
 	float RepeatInterval;
+
+private:
+	UPROPERTY()
+	class UBehaviorTree* BTAsset;
+	
+	UPROPERTY()
+	class UBlackboardData* BBAsset;
+
 };

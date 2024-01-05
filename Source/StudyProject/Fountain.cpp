@@ -59,7 +59,7 @@ void AFountain::BeginPlay()
 	UE_LOG(StudyProject, Warning, TEXT("Actor Name : %s, ID : %d, Location X : %.3f"), *GetName(), _id, GetActorLocation().X);
 
 	STLOG_S(Warning);
-	ST_LOG(Warning, TEXT("Actor Name : %s, ID : %d, Location X : %.3f"), *GetName(), _id, GetActorLocation().X);
+	STLOG(Warning, TEXT("Actor Name : %s, ID : %d, Location X : %.3f"), *GetName(), _id, GetActorLocation().X);
 
 	// check(false); // exit
 	// not exit

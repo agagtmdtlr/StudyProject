@@ -46,7 +46,7 @@ void USTCharacterStatComponent::SetNewLevel(int32 NewLevel)
 	}
 	else
 	{
-		ST_LOG(Error, TEXT("Level (%d) data doesn't exist"), NewLevel);
+		STLOG(Error, TEXT("Level (%d) data doesn't exist"), NewLevel);
 	}
 }
 

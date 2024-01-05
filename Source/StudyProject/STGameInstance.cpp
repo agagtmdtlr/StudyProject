@@ -18,7 +18,7 @@ void USTGameInstance::Init()
 {
 	Super::Init();
 
-	ST_LOG(Warning, TEXT("DropExp of Level 20 STCharcter : %d"), GetSTCharacterData(20)->DropExp );
+	STLOG(Warning, TEXT("DropExp of Level 20 STCharcter : %d"), GetSTCharacterData(20)->DropExp );
 }
 
 FSTCharacterData* USTGameInstance::GetSTCharacterData(int32 Level)

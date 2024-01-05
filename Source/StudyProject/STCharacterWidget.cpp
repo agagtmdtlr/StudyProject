@@ -13,7 +13,7 @@ void USTCharacterWidget::BindCharacterStat(USTCharacterStatComponent* NewCharact
 	NewCharacterStat->OnHPChanged.AddLambda([this]() -> void {
 		if (CurrentCharacterStat.IsValid())
 		{
-			ST_LOG(Warning, TEXT("HP Ratio : (%f)"), CurrentCharacterStat->GetHPRatio());
+			STLOG(Warning, TEXT("HP Ratio : (%f)"), CurrentCharacterStat->GetHPRatio());
 		}
 		});
 

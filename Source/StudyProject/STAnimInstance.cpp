@@ -76,6 +76,6 @@ FName USTAnimInstance::GetAttackMontageSectionName(int32 Section)
 {
 	STCHECK(FMath::IsWithinInclusive<int32>(Section, 1, 4), NAME_None);
 	FString SectionName( FString::Printf(TEXT("Attack%d"), Section) );
-	ST_LOG(Warning, TEXT("Section Name : %s"), *SectionName);
+	STLOG(Warning, TEXT("Section Name : %s"), *SectionName);
 	return FName(*SectionName);
 }
