@@ -22,6 +22,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
 	float MaxHP;
 
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
+	//float MaxMP;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
 	float Attack;
 

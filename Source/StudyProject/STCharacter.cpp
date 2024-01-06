@@ -226,6 +226,14 @@ void ASTCharacter::SetControlMode(EControlMode ControlMode)
 		characterMovement->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
 		break;
 	}
+	case EControlMode::NPC:
+	{
+		bUseControllerRotationYaw = false;
+		characterMovement->bUseControllerDesiredRotation = false;
+		characterMovement->bOrientRotationToMovement = true;
+		characterMovement->RotationRate = FRotator(0.0f, 480.0f, 0.0f);		
+		break;
+	}
 	}
 	
 }
@@ -285,7 +293,6 @@ void ASTCharacter::PostInitializeComponents()
 		SetActorEnableCollision(false);
 		});
 
-	
 
 }
 
@@ -364,6 +371,21 @@ float ASTCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AC
 
 
 	return FinalDamage;
+}
+
+void ASTCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	if (IsPlayerControlled())
+	{
+		SetControlMode(EControlMode::Orbit);
+		GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	}
+	else
+	{
+		SetControlMode(EControlMode::NPC);
+		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	}
 }
 
 void ASTCharacter::PlaneMovement(const FInputActionValue& Value)

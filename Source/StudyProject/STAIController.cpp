@@ -10,6 +10,8 @@
 
 const FName ASTAIController::HomePosKey(TEXT("HomePos"));
 const FName ASTAIController::PatrolPosKey(TEXT("PatrolPos"));
+const FName ASTAIController::TargetKey(TEXT("Target"));
+
 
 ASTAIController::ASTAIController()
 {

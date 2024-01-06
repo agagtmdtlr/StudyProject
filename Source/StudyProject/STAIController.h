@@ -18,6 +18,7 @@ public:
 	// TODO:: Blackboard 속성이름이 하드코딩 됨, 개선 필요...
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
+	static const FName TargetKey;
 
 
 	ASTAIController();

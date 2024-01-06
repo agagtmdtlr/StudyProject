@@ -69,6 +69,10 @@ void USTCharacterStatComponent::SetHP(float NewHP)
 }
 
 
+void USTCharacterStatComponent::SetMP(float NewMP)
+{
+}
+
 float USTCharacterStatComponent::GetAttack()
 {
 	STCHECK(CurrentStatData != nullptr, 0.0f);

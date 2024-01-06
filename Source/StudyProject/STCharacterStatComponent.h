@@ -9,6 +9,7 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnHPIsZeroDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnHPChangedDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnMPChangedDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class STUDYPROJECT_API USTCharacterStatComponent : public UActorComponent
@@ -28,12 +29,14 @@ public:
 	void SetNewLevel(int32 NewLevel);
 	void SetDamage(float NewDamage);
 	void SetHP(float NewHP);
+	void SetMP(float NewMP);
+
 	float GetAttack();
 	float GetHPRatio();
 
 	FOnHPIsZeroDelegate OnHPIsZero;
 	FOnHPChangedDelegate OnHPChanged;
-
+	FOnMPChangedDelegate OnMPChanged;
 private:
 	struct FSTCharacterData* CurrentStatData = nullptr;
 	UPROPERTY(EditInstanceOnly, Category=Stat, Meta=(AllowPrivateAccess =true))
@@ -42,7 +45,8 @@ private:
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat, Meta=(AllowPrivateAccess=true))
 	float CurrentHP;
 
-
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat, Meta=(AllowPrivateAccess=true))
+	float CurrentMP;
 
 
 		

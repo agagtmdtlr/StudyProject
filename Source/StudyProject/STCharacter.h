@@ -32,6 +32,7 @@ protected:
 	{
 		Orbit,
 		TopView,
+		NPC,
 		ModeCount,
 	};
 
@@ -71,6 +72,8 @@ public:
 
 	// Called Event
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;	
+
+	virtual void PossessedBy(AController* NewController) override;
 
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	USpringArmComponent* SpringArm;
