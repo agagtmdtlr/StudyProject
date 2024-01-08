@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "STGameMode.h"
-#include "StudyProject/StudyProject.h"
+#include "StudyProject.h"
 #include "STCharacter.h"
 #include "STPawn.h"
 #include "STPlayerController.h"
