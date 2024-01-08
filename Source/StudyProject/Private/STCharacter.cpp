@@ -464,7 +464,7 @@ void ASTCharacter::JumpCallback(const FInputActionValue& Value)
 	Jump();
 }
 
-void ASTCharacter::Attack(const FInputActionValue& Value)
+void ASTCharacter::Attack()
 {
 	//STLOG_S(Warning);
 	if (IsAttacking)
@@ -506,6 +506,8 @@ void ASTCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted
 	STCHECK(CurrentCombo > 0);
 	IsAttacking = false;
 	AttackEndComboState();
+
+	OnAttackEnd.Broadcast();
 }
 
 void ASTCharacter::AttackStartComboState()

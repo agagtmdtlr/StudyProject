@@ -15,6 +15,8 @@ class UInputMappingContext;
 struct FInputActionValue;
 
 
+DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
+
 UCLASS()
 class STUDYPROJECT_API ASTCharacter : public ACharacter
 {
@@ -46,6 +48,7 @@ protected:
 	float ArmRotationSpeed = 0.0f;
 
 public:	
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -101,10 +104,11 @@ public:
 	UInputMappingContext* MappingContext;
 
 
-	
-
-
 	float Acceleration = 0.5f;
+
+
+	void Attack();
+	FOnAttackEndDelegate OnAttackEnd;
 
 private:
 	void PlaneMovement(const FInputActionValue& Value);
@@ -113,7 +117,6 @@ private:
 	
 	void JumpCallback(const FInputActionValue& Value);
 	
-	void Attack(const FInputActionValue& Value);
 
 	void AccelerateMovement(const FInputActionValue& Value);
 
