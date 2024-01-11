@@ -9,9 +9,15 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(config=StudyProject)
 class STUDYPROJECTSETTING_API USTCharacterSetting : public UObject
 {
 	GENERATED_BODY()
+
+public:
+
+	USTCharacterSetting();
 	
+	UPROPERTY(config)
+	TArray<FSoftObjectPath> CharacterAssets;
 };

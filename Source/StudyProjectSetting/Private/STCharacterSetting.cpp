@@ -3,3 +3,7 @@
 
 #include "STCharacterSetting.h"
 
+USTCharacterSetting::USTCharacterSetting()
+{
+
+}

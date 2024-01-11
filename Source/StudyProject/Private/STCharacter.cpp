@@ -18,6 +18,11 @@
 #include "DrawDebugHelpers.h"
 #include <vector>
 
+#include "STCharacterSetting.h"
+
+#include "STGameInstance.h"
+
+
 // Sets default values
 ASTCharacter::ASTCharacter()
 	:
@@ -154,6 +159,14 @@ ASTCharacter::ASTCharacter()
 	AIControllerClass = ASTAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
+	auto DefaultSetting = GetDefault<USTCharacterSetting>();
+	if (DefaultSetting->CharacterAssets.Num() > 0)
+	{
+		for (auto CharacterAsset : DefaultSetting->CharacterAssets)
+		{
+			STLOG(Warning, TEXT("Character Asset : %s"), *CharacterAsset.ToString());
+		}
+	}
 
 }
 
@@ -168,6 +181,23 @@ void ASTCharacter::BeginPlay()
 	//{
 	//	CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
 	//}
+
+	if (!IsPlayerControlled())
+	{
+		auto DefaultSetting = GetDefault<USTCharacterSetting>();
+		if (DefaultSetting->CharacterAssets.Num() > 0)
+		{
+			int32 RandomIndex = FMath::RandRange(0, DefaultSetting->CharacterAssets.Num() - 1 );
+			CharacterAssetToLoad = DefaultSetting->CharacterAssets[RandomIndex];
+
+			auto STGameInstance = Cast<USTGameInstance>(GetGameInstance());
+			if (STGameInstance != nullptr)
+			{
+				AssetStreamingHandle = STGameInstance->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad, FStreamableDelegate::CreateUObject(this, &ASTCharacter::OnAssetLoadCompleted));
+			}
+		}
+	}
+
 
 	// 위젯 초기화 시점이 PostInitializeComponent => BeginPlay로 변경됨
 	USTCharacterWidget* CharacterWidget = Cast<USTCharacterWidget>(HPBarWidget->GetUserWidgetObject());
@@ -561,5 +591,10 @@ void ASTCharacter::AttackCheck()
 			Actor->TakeDamage( CharacterStat->GetAttack(), DamageEvent, GetController(), this);
 		}
 	}
+}
+
+void ASTCharacter::OnAssetLoadCompleted()
+{
+	USkeletalMesh* AssetLoaded = Cast<USkeletalMesh>(AssetStreamingHandle->GetLoadedAsset());
 }
 

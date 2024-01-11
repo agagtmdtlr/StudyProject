@@ -13,7 +13,7 @@ public class StudyProject : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "EnhancedInput" });
 
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] {  "StudyProjectSetting" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
