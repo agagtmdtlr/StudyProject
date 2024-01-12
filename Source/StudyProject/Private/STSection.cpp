@@ -30,6 +30,15 @@ ASTSection::ASTSection()
 		STLOG(Error, TEXT("Failed to load staticmesh asset. : %s"), *GateAssetPath);
 	}
 
+	// Create Trigger
+	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("TRIGGER"));
+	Trigger->SetBoxExtent(FVector(775.0f, 775.0f, 300.0f));
+	Trigger->SetupAttachment(RootComponent);
+	Trigger->SetRelativeLocation(FVector(0.0f, 0.0f, 250.0f));
+	Trigger->SetCollisionProfileName(TEXT("STTrigger"));
+
+
+	// Create Socket Gate Mesh
 	static FName GateSockets[] = {
 		{TEXT("+XGate")},
 		{TEXT("-XGate")},
@@ -39,6 +48,7 @@ ASTSection::ASTSection()
 
 	for (FName GateSocket : GateSockets)
 	{
+		// Create Gate
 		STCHECK(Mesh->DoesSocketExist(GateSocket));
 		UStaticMeshComponent* NewGate = CreateDefaultSubobject<UStaticMeshComponent>(*GateSocket.ToString());
 		NewGate->SetStaticMesh(SM_Gate.Object);
@@ -46,7 +56,19 @@ ASTSection::ASTSection()
 		NewGate->SetRelativeLocation(FVector(0.0f, -80.5f, 0.0f));
 
 		GateMeshes.Add(NewGate);
+
+		// Create Gate Trigger
+
+		UBoxComponent* NewGateTrigger = CreateDefaultSubobject<UBoxComponent>( *GateSocket.ToString().Append(TEXT("Trigger")));
+		NewGateTrigger->SetBoxExtent(FVector(100.0f, 100.0f, 300.0f));
+		NewGateTrigger->SetupAttachment(RootComponent, GateSocket);
+		NewGateTrigger->SetRelativeLocation(FVector(70.0f, 0.0f, 250.0f));
+		NewGateTrigger->SetCollisionProfileName(TEXT("STTrigger"));
+		GateTriggers.Add(NewGateTrigger);
+
 	}
+
+
 
 }
 

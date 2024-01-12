@@ -21,6 +21,7 @@ void UBoidActionModel::SetBoundary(FBox NewBoundary)
 	Boundary = NewBoundary;
 }
 
+
 void UBoidActionModel::UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& NearestCells, float DeltaTime)
 {
 	FVector Goal = FVector::ZeroVector;
@@ -72,5 +73,22 @@ void UBoidActionModel::UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& Nearest
 
 	//Boid->GoalRotator = FQuat::MakeFromRotationVector(Boid->Velocity);
 	//Boid->GoalRotator.Quaternion();
+}
 
+void UBoidActionModel::CheckCollisionBoundary(FBoid* Boid)
+{
+	float RayLength = 100.0f;
+	FVector CheckPos = Boid->Position + Boid->Velocity.GetSafeNormal() * RayLength;
+	FVector NewVelocity = Boid->Velocity;
+
+	FVector BoxVertices[8];
+	Boundary.GetVertices(BoxVertices);
+	if (Boundary.Min.X > CheckPos.X || Boundary.Max.X < CheckPos.X)
+		NewVelocity.X = -NewVelocity.X;
+
+	if (Boundary.Min.Y > CheckPos.Y || Boundary.Max.Y < CheckPos.Y)
+		NewVelocity.Y = -NewVelocity.Y;
+
+	if(Boundary.Min.Z > CheckPos.Z || Boundary.Max.Z < CheckPos.Z)
+		NewVelocity.Z = -NewVelocity.Z;
 }

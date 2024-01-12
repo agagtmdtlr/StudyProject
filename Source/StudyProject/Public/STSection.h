@@ -27,7 +27,13 @@ private:
 	UPROPERTY(VisibleAnywhere, Category=Mesh, Meta=(AllowPrivateAccess=true))
 	TArray<UStaticMeshComponent*> GateMeshes;
 
+	UPROPERTY(VisibleAnywhere, Category=Trigger, Meta=(AllowPrivateAccess=true))
+	TArray<UBoxComponent*> GateTriggers;
+
 	UPROPERTY(VisibleAnywhere, Category=Mesh, Meta=(AllowPrivateAccess=true))
 	UStaticMeshComponent* Mesh;
+
+	UPROPERTY(VisibleAnywhere, Category=Trigger, Meta=(AllowPrivateAccess=true))
+	UBoxComponent* Trigger;
 
 };

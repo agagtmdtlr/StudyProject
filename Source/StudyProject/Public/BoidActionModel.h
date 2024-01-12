@@ -25,6 +25,9 @@ public:
 	void SetBoundary(FBox NewBoundary);
 
 	virtual void UpdateBoid(FBoid* Boid, const TArray<FBoidCell*>& NearestCells, float DeltaTime);
+
+private:
+	virtual void CheckCollisionBoundary(FBoid* Boid);
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Range")
@@ -35,6 +38,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Range")
 	double AlignmentSpeed;
+
+	
 
 private:
 	FBox Boundary;
