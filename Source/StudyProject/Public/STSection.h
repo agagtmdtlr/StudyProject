@@ -24,6 +24,19 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	enum class ESectionState :uint8
+	{
+		READY = 0,
+		BATTLE,
+		COMPLETE
+	};
+
+	void SetState(ESectionState NewState);
+	ESectionState CurrentState = ESectionState::READY;
+
+	void OperateGates(bool bOpen = true);
+
+private:
 	UPROPERTY(VisibleAnywhere, Category=Mesh, Meta=(AllowPrivateAccess=true))
 	TArray<UStaticMeshComponent*> GateMeshes;
 
@@ -35,5 +48,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category=Trigger, Meta=(AllowPrivateAccess=true))
 	UBoxComponent* Trigger;
+
+	UPROPERTY(EditAnywhere, Category=State, Meta=(AllowPrivateAccess=true))
+	bool bNoBattle;
 
 };

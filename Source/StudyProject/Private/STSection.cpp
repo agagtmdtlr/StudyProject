@@ -9,6 +9,8 @@ ASTSection::ASTSection()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	bNoBattle = false;
+
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MESH"));
 	RootComponent = Mesh;
 
@@ -76,13 +78,67 @@ ASTSection::ASTSection()
 void ASTSection::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+
+	SetState(bNoBattle ? ESectionState::COMPLETE : ESectionState::READY);
 }
+
+
 
 // Called every frame
 void ASTSection::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ASTSection::SetState(ESectionState NewState)
+{
+	switch (NewState)
+	{
+	case ASTSection::ESectionState::READY:
+	{
+		Trigger->SetCollisionProfileName(TEXT("STTrigger"));
+		for (UBoxComponent* GateTrigger : GateTriggers)
+		{
+			GateTrigger->SetCollisionProfileName(TEXT("NoCollision"));
+		}
+
+		OperateGates(true);
+		break;
+	}
+	case ASTSection::ESectionState::BATTLE:
+	{
+		Trigger->SetCollisionProfileName(TEXT("NoCollision"));
+		for (UBoxComponent* GateTrigger : GateTriggers)
+		{
+			
+			GateTrigger->SetCollisionProfileName(TEXT("NoCollision"));
+		}
+
+		OperateGates(true);
+		break;
+	}
+	case ASTSection::ESectionState::COMPLETE:
+	{
+		Trigger->SetCollisionProfileName(TEXT("NoCollision"));
+		for (UBoxComponent* GateTrigger : GateTriggers)
+		{
+			GateTrigger->SetCollisionProfileName(TEXT("STTrigger"));
+		}
+		break;
+	}
+	}
+
+	CurrentState = NewState;
+
+}
+
+void ASTSection::OperateGates(bool bOpen /*= true*/)
+{
+	for (UStaticMeshComponent* Gate : GateMeshes)
+	{
+		Gate->SetRelativeRotation(bOpen ? FRotator(0.0f, 90.0f, 0.0f) : FRotator::ZeroRotator);
+	}
 }
 
