@@ -2,6 +2,8 @@
 
 
 #include "STSection.h"
+#include "STCharacter.h"
+#include "STItemBox.h"
 
 // Sets default values
 ASTSection::ASTSection()
@@ -10,6 +12,9 @@ ASTSection::ASTSection()
 	PrimaryActorTick.bCanEverTick = false;
 
 	bNoBattle = false;
+
+	EnemySpawnTime = 2.0f;
+	ItemBoxSpawnTime = 5.0f;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MESH"));
 	RootComponent = Mesh;
@@ -25,6 +30,7 @@ ASTSection::ASTSection()
 		STLOG(Error, TEXT("Failed to load staticmesh asset. : %s"), *AssetPath);
 	}
 
+
 	FString GateAssetPath = TEXT("/Game/BackGround/StaticMesh/SM_GATE.SM_GATE");
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_Gate(*GateAssetPath);
 	if (!SM_Gate.Succeeded())
@@ -38,6 +44,8 @@ ASTSection::ASTSection()
 	Trigger->SetupAttachment(RootComponent);
 	Trigger->SetRelativeLocation(FVector(0.0f, 0.0f, 250.0f));
 	Trigger->SetCollisionProfileName(TEXT("STTrigger"));
+
+	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ASTSection::OnTriggerBeginOverlap);
 
 
 	// Create Socket Gate Mesh
@@ -68,10 +76,20 @@ ASTSection::ASTSection()
 		NewGateTrigger->SetCollisionProfileName(TEXT("STTrigger"));
 		GateTriggers.Add(NewGateTrigger);
 
+
+		NewGateTrigger->OnComponentBeginOverlap.AddDynamic(this, &ASTSection::OnGateTriggerBeginOverlap);
+		// 어떤 문에 있는 컴포넌트 인지 구분하기 위해 태그 설정
+		NewGateTrigger->ComponentTags.Add(GateSocket);
 	}
 
 
 
+}
+
+void ASTSection::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	SetState(bNoBattle ? ESectionState::COMPLETE : ESectionState::READY);
 }
 
 // Called when the game starts or when spawned
@@ -116,7 +134,16 @@ void ASTSection::SetState(ESectionState NewState)
 			GateTrigger->SetCollisionProfileName(TEXT("NoCollision"));
 		}
 
-		OperateGates(true);
+		OperateGates(false);
+
+		GetWorld()->GetTimerManager().SetTimer(SpawnNPCTimerHandle, FTimerDelegate::CreateUObject(this, &ASTSection::OnNPCSpawn), EnemySpawnTime, false);
+		GetWorld()->GetTimerManager().SetTimer(SpawnItemBoxTimerHandle, FTimerDelegate::CreateLambda([this]()->void
+			{
+				FVector2D RandXY = FMath::RandPointInCircle(600.0f);
+				GetWorld()->SpawnActor<ASTItemBox>(GetActorLocation() + FVector(RandXY, 30.0f), FRotator::ZeroRotator);
+			}), ItemBoxSpawnTime, false);
+
+
 		break;
 	}
 	case ASTSection::ESectionState::COMPLETE:
@@ -126,6 +153,8 @@ void ASTSection::SetState(ESectionState NewState)
 		{
 			GateTrigger->SetCollisionProfileName(TEXT("STTrigger"));
 		}
+
+		OperateGates(true);
 		break;
 	}
 	}
@@ -140,5 +169,47 @@ void ASTSection::OperateGates(bool bOpen /*= true*/)
 	{
 		Gate->SetRelativeRotation(bOpen ? FRotator(0.0f, 90.0f, 0.0f) : FRotator::ZeroRotator);
 	}
+}
+
+void ASTSection::OnTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (CurrentState == ESectionState::READY)
+	{
+		SetState(ESectionState::BATTLE);
+	}
+}
+
+void ASTSection::OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	STCHECK(OverlappedComponent->ComponentTags.Num() == 1);
+	FName ComponentTag = OverlappedComponent->ComponentTags[0];
+	FName SocketName = FName(*ComponentTag.ToString().Left(2));
+	if (!Mesh->DoesSocketExist(SocketName))
+		return;
+
+	FVector NewLocation = Mesh->GetSocketLocation(SocketName);
+
+	TArray<FOverlapResult> OverlapResults;
+
+	const bool bInTraceComplex = false;
+	AActor* ignoreActor = this;// 범위내 오버랩 객체 중 자기자신은 무시하기 위함
+	FCollisionQueryParams CollsionQueryParam(NAME_None, bInTraceComplex, ignoreActor); 
+	FCollisionObjectQueryParams ObjectQueryparam(FCollisionObjectQueryParams::InitType::AllObjects);
+	bool bResult = GetWorld()->OverlapMultiByObjectType(OverlapResults, NewLocation, FQuat::Identity, ObjectQueryparam, FCollisionShape::MakeSphere(775.0f), CollsionQueryParam);
+
+	if (!bResult)
+	{
+		auto NewSection = GetWorld()->SpawnActor<ASTSection>(NewLocation, FRotator::ZeroRotator);
+	}
+	else
+	{
+		STLOG(Warning, TEXT("New Section area is not empty"));
+	}
+
+}
+
+void ASTSection::OnNPCSpawn()
+{
+	GetWorld()->SpawnActor<ASTCharacter>(GetActorLocation() + FVector::UpVector * 88.0f, FRotator::ZeroRotator);
 }
 

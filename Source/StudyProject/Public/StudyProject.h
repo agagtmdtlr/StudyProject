@@ -3,6 +3,17 @@
 #pragma once
 #include "EngineMinimal.h"
 
+
+UENUM(BlueprintType)
+enum class ECharacterState : uint8
+{
+	PREINIT,
+	LOADING,
+	READY,
+	DEAD
+};
+
+
 DECLARE_LOG_CATEGORY_EXTERN(StudyProject, Log, All);
 //#define STLOG_CALLINFO (FString(__FILE__) + TEXT(" : ") + FString(__FUNCTION__) + TEXT("(Line:") + FString::FromInt(__LINE__) + TEXT(")"))
 #define STLOG_CALLINFO (FString(__FUNCTION__) + TEXT("(Line:") + FString::FromInt(__LINE__) + TEXT(")"))

@@ -6,12 +6,12 @@
 void ASTPlayerController::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	STLOG_S(Warning);
+	//STLOG_S(Warning);
 }
 
 void ASTPlayerController::OnPossess(APawn* aPawn)
 {
-	STLOG_S(Warning);
+	//STLOG_S(Warning);
 	Super::OnPossess(aPawn);
 }
 
