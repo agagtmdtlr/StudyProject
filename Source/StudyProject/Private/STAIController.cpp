@@ -52,6 +52,29 @@ void ASTAIController::OnUnPossess()
 }
 
 
+void ASTAIController::RunAI()
+{
+	UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+	if (UseBlackboard(BBAsset, BlackboardComp))
+	{
+		BlackboardComp->SetValueAsVector(HomePosKey, GetPawn()->GetActorLocation());
+		if (!RunBehaviorTree(BTAsset))
+		{
+			STLOG(Error, TEXT("AIController couldn't run behavior tree"));
+		}
+	}
+}
+
+void ASTAIController::StopAI()
+{
+	auto BehaviorTreeComponent = Cast<UBehaviorTreeComponent>(BrainComponent);
+	if (BehaviorTreeComponent != nullptr)
+	{
+		BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
+	}
+
+}
+
 void ASTAIController::OnRepeatTimer()
 {
 	auto CurrentPawn = GetPawn();

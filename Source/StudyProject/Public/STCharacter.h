@@ -79,8 +79,6 @@ public:
 	// Called Event
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;	
 
-	virtual void PossessedBy(AController* NewController) override;
-
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	USpringArmComponent* SpringArm;
 
@@ -178,5 +176,9 @@ private:
 	UPROPERTY()
 	class ASTPlayerController* STPlayerController;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=State, Meta=(AllowPrivateAccess=true))
+	float DeadTimer;
+
+	FTimerHandle DeadTimerHandle = { };
 
 };

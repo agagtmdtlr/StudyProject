@@ -5,17 +5,18 @@
 #include "STCharacter.h"
 #include "STPawn.h"
 #include "STPlayerController.h"
+#include "STPlayerState.h"
 
 ASTGameMode::ASTGameMode()
 {
 	//DefaultPawnClass = ASTPawn::StaticClass();
 	DefaultPawnClass = ASTCharacter::StaticClass();
 	PlayerControllerClass = ASTPlayerController::StaticClass();
+	PlayerStateClass = ASTPlayerState::StaticClass();
 }
 
 void ASTGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	STLOG(Warning, TEXT("PostLogin Begin"));
 /*
 * 
 1. create player controller
@@ -24,7 +25,6 @@ void ASTGameMode::PostLogin(APlayerController* NewPlayer)
 4. begin game
 */
 	Super::PostLogin(NewPlayer);
-	STLOG(Warning, TEXT("PostLogin Eng"));
 
 	// BP Pawn Class Asset
 	//static ConstructorHelpers::FClassFinder<APawn> bpPawnC(TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.BP_ThirdPersonCharacter_C"));
@@ -32,6 +32,11 @@ void ASTGameMode::PostLogin(APlayerController* NewPlayer)
 	//{
 	//	DefaultPawnClass = bpPawnC.Class;
 	//}
+
+	auto STPlayerState = Cast<ASTPlayerState>(NewPlayer->PlayerState);
+	STCHECK(STPlayerState != nullptr);
+	STPlayerState->InitPlayerData();
+
 }
 
 

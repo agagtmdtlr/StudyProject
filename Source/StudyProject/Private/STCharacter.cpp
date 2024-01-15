@@ -21,6 +21,8 @@
 #include "STCharacterSetting.h"
 
 #include "STGameInstance.h"
+#include "STPlayerController.h"
+#include "STPlayerState.h"
 
 
 // Sets default values
@@ -168,6 +170,110 @@ ASTCharacter::ASTCharacter()
 		}
 	}
 
+
+	AssetIndex = 4;
+	SetActorHiddenInGame(true);
+	HPBarWidget->SetHiddenInGame(true);
+	SetCanBeDamaged(false);
+
+	DeadTimer = 5.0f;
+
+}
+
+void ASTCharacter::SetCharacterState(ECharacterState NewState)
+{
+	STCHECK(CurrentState != NewState);
+	CurrentState = NewState;
+
+	switch (CurrentState)
+	{
+	case ECharacterState::LOADING:
+	{
+		if (bIsPlayer)
+		{
+			DisableInput(STPlayerController);
+
+			auto STPlayerState = Cast<ASTPlayerState>(GetPlayerState());
+			STCHECK(STPlayerState != nullptr);
+			CharacterStat->SetNewLevel(STPlayerState->GetCharacterLevel());
+
+		}
+
+		SetActorHiddenInGame(true);
+		HPBarWidget->SetHiddenInGame(true);
+		SetCanBeDamaged(false);
+		break;
+	}
+	case ECharacterState::READY:
+	{
+		SetActorHiddenInGame(false);
+		HPBarWidget->SetHiddenInGame(false);
+		SetCanBeDamaged(true);
+
+		CharacterStat->OnHPIsZero.AddLambda([this]() -> void {
+			SetCharacterState(ECharacterState::DEAD);
+			});
+
+		auto CharacterWidget = Cast<USTCharacterWidget>(HPBarWidget->GetUserWidgetObject());
+		STCHECK(CharacterWidget != nullptr);
+		CharacterWidget->BindCharacterStat(CharacterStat);
+
+		if (bIsPlayer)
+		{
+			SetControlMode(EControlMode::Orbit);
+			GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+			EnableInput(STPlayerController);
+		}
+		else
+		{
+			SetControlMode(EControlMode::NPC);
+			GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+			STAIController->RunAI();
+		}
+
+
+		break;
+	}
+	case ECharacterState::DEAD:
+	{
+
+		SetActorHiddenInGame(false);
+		GetMesh()->SetHiddenInGame(false);
+		HPBarWidget->SetHiddenInGame(true);
+		STAnim->SetDeadAnim();
+		SetCanBeDamaged(false);
+
+		if (bIsPlayer)
+		{
+			DisableInput(STPlayerController);
+		}
+		else
+		{
+			STAIController->StopAI();
+		}
+
+		GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([this]() -> void {
+			if (bIsPlayer)
+			{
+				STPlayerController->RestartLevel();
+			}
+			else
+			{
+				Destroy();
+			}
+		}), DeadTimer, false);
+
+
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+ECharacterState ASTCharacter::GetCharacterState() const
+{
+	return CurrentState;
 }
 
 // Called when the game starts or when spawned
@@ -182,21 +288,35 @@ void ASTCharacter::BeginPlay()
 	//	CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
 	//}
 
-	if (!IsPlayerControlled())
+	bIsPlayer = IsPlayerControlled();
+	if (bIsPlayer)
 	{
-		auto DefaultSetting = GetDefault<USTCharacterSetting>();
-		if (DefaultSetting->CharacterAssets.Num() > 0)
-		{
-			int32 RandomIndex = FMath::RandRange(0, DefaultSetting->CharacterAssets.Num() - 1 );
-			CharacterAssetToLoad = DefaultSetting->CharacterAssets[RandomIndex];
-
-			auto STGameInstance = Cast<USTGameInstance>(GetGameInstance());
-			if (STGameInstance != nullptr)
-			{
-				AssetStreamingHandle = STGameInstance->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad, FStreamableDelegate::CreateUObject(this, &ASTCharacter::OnAssetLoadCompleted));
-			}
-		}
+		STPlayerController = Cast<ASTPlayerController>(GetController());
+		STCHECK(STPlayerController != nullptr);
 	}
+	else
+	{
+		STAIController = Cast<ASTAIController>(GetController());
+		STCHECK(STAIController != nullptr);
+	}
+
+	auto DefaultSetting = GetDefault<USTCharacterSetting>();
+
+	if (bIsPlayer)
+	{
+		AssetIndex = 4;
+	}
+	else
+	{
+		AssetIndex = FMath::RandRange(0, DefaultSetting->CharacterAssets.Num() - 1);		
+	}
+
+	CharacterAssetToLoad = DefaultSetting->CharacterAssets[AssetIndex];
+
+	auto STGameInstance = Cast<USTGameInstance>(GetGameInstance());
+	STCHECK(STGameInstance != nullptr);
+	AssetStreamingHandle = STGameInstance->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad, FStreamableDelegate::CreateUObject(this, &ASTCharacter::OnAssetLoadCompleted));
+	SetCharacterState(ECharacterState::LOADING);
 
 
 	// 위젯 초기화 시점이 PostInitializeComponent => BeginPlay로 변경됨
@@ -403,21 +523,6 @@ float ASTCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AC
 	return FinalDamage;
 }
 
-void ASTCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-	if (IsPlayerControlled())
-	{
-		SetControlMode(EControlMode::Orbit);
-		GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-	}
-	else
-	{
-		SetControlMode(EControlMode::NPC);
-		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
-	}
-}
-
 void ASTCharacter::PlaneMovement(const FInputActionValue& Value)
 {
 	FVector2D Value2D = Value.Get<FVector2D>();
@@ -596,5 +701,11 @@ void ASTCharacter::AttackCheck()
 void ASTCharacter::OnAssetLoadCompleted()
 {
 	USkeletalMesh* AssetLoaded = Cast<USkeletalMesh>(AssetStreamingHandle->GetLoadedAsset());
+	AssetStreamingHandle.Reset();
+	STCHECK(AssetLoaded != nullptr);
+	//GetMesh()->SetSkeletalMesh(AssetLoaded);
+
+	SetCharacterState(ECharacterState::READY);
+
 }
 
