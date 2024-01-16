@@ -4,6 +4,8 @@
 #include "STSection.h"
 #include "STCharacter.h"
 #include "STItemBox.h"
+#include "STPlayerController.h"
+#include "STGameMode.h"
 
 // Sets default values
 ASTSection::ASTSection()
@@ -154,6 +156,8 @@ void ASTSection::SetState(ESectionState NewState)
 			GateTrigger->SetCollisionProfileName(TEXT("STTrigger"));
 		}
 
+		// game score add
+
 		OperateGates(true);
 		break;
 	}
@@ -210,6 +214,26 @@ void ASTSection::OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedCompon
 
 void ASTSection::OnNPCSpawn()
 {
-	GetWorld()->SpawnActor<ASTCharacter>(GetActorLocation() + FVector::UpVector * 88.0f, FRotator::ZeroRotator);
+	GetWorld()->GetTimerManager().ClearTimer(SpawnNPCTimerHandle); //
+	auto KeyNPC =  GetWorld()->SpawnActor<ASTCharacter>(GetActorLocation() + FVector::UpVector * 88.0f, FRotator::ZeroRotator);
+	if (KeyNPC != nullptr)
+	{
+		KeyNPC->OnDestroyed.AddDynamic(this, &ASTSection::OnKeyNPCDestroyed);
+	}
+}
+
+void ASTSection::OnKeyNPCDestroyed(AActor* DestroyedActor)
+{
+	auto STCharacter = Cast<ASTCharacter>(DestroyedActor);
+	STCHECK(STCharacter != nullptr);
+
+	auto STPlayerController = Cast<ASTPlayerController>(STCharacter->LastHitBy);
+	STCHECK(STPlayerController != nullptr);
+
+	auto STGameMode = Cast<ASTGameMode>(GetWorld()->GetAuthGameMode());
+	STCHECK(STGameMode != nullptr);
+	STGameMode->AddScore(STPlayerController);
+
+	SetState(ESectionState::COMPLETE);
 }
 

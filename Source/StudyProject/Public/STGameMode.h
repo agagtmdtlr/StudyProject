@@ -19,6 +19,13 @@ class STUDYPROJECT_API ASTGameMode : public AGameModeBase
 public:
 	ASTGameMode();
 
+	virtual void PostInitializeComponents() override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	void AddScore(class ASTPlayerController* ScoredPlayer);
+
+private:
+	UPROPERTY()
+	class ASTGameState* STGameState;
+
 	
 };

@@ -6,6 +6,7 @@
 #include "STPawn.h"
 #include "STPlayerController.h"
 #include "STPlayerState.h"
+#include "STGameState.h"
 
 ASTGameMode::ASTGameMode()
 {
@@ -13,6 +14,13 @@ ASTGameMode::ASTGameMode()
 	DefaultPawnClass = ASTCharacter::StaticClass();
 	PlayerControllerClass = ASTPlayerController::StaticClass();
 	PlayerStateClass = ASTPlayerState::StaticClass();
+	GameStateClass = ASTGameState::StaticClass();
+}
+
+void ASTGameMode::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	STGameState = Cast<ASTGameState>(GameState);
 }
 
 void ASTGameMode::PostLogin(APlayerController* NewPlayer)
@@ -39,5 +47,20 @@ void ASTGameMode::PostLogin(APlayerController* NewPlayer)
 
 }
 
+void ASTGameMode::AddScore(class ASTPlayerController* ScoredPlayer)
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		const auto STPlayerController = Cast<ASTPlayerController>(It->Get());
+		if ((STPlayerController != nullptr) && (ScoredPlayer == STPlayerController))
+		{
+			STPlayerController->AddGameScore();
+			break;
+		}
+	}
+
+	STGameState->AddGameScore();
+
+}
 
 

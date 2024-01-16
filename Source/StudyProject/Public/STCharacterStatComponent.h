@@ -31,8 +31,9 @@ public:
 	void SetHP(float NewHP);
 	void SetMP(float NewMP);
 
-	float GetAttack();
-	float GetHPRatio();
+	float GetAttack() const;
+	float GetHPRatio() const;
+	int32 GetDropExp() const ;
 
 	FOnHPIsZeroDelegate OnHPIsZero;
 	FOnHPChangedDelegate OnHPChanged;

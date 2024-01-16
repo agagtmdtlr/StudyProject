@@ -73,16 +73,22 @@ void USTCharacterStatComponent::SetMP(float NewMP)
 {
 }
 
-float USTCharacterStatComponent::GetAttack()
+float USTCharacterStatComponent::GetAttack() const
 {
 	STCHECK(CurrentStatData != nullptr, 0.0f);
 	return CurrentStatData->Attack;
 }
 
-float USTCharacterStatComponent::GetHPRatio()
+float USTCharacterStatComponent::GetHPRatio() const
 {
 	STCHECK(CurrentStatData != nullptr, 0.0f);
-
 	return (CurrentStatData->MaxHP < KINDA_SMALL_NUMBER) ? 0.0f : ( CurrentHP / CurrentStatData->MaxHP );
+}
+
+int32 USTCharacterStatComponent::GetDropExp() const
+{
+	STCHECK(CurrentStatData != nullptr, 0);
+	return CurrentStatData->DropExp;
+
 }
 

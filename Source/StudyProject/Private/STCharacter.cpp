@@ -24,6 +24,7 @@
 #include "STPlayerController.h"
 #include "STPlayerState.h"
 
+#include "STHUDWidget.h"
 
 // Sets default values
 ASTCharacter::ASTCharacter()
@@ -191,7 +192,11 @@ void ASTCharacter::SetCharacterState(ECharacterState NewState)
 	{
 		if (bIsPlayer)
 		{
+
 			DisableInput(STPlayerController);
+
+			STPlayerController->GetHUDWidget()->BindCharacterStat(CharacterStat);
+
 
 			auto STPlayerState = Cast<ASTPlayerState>(GetPlayerState());
 			STCHECK(STPlayerState != nullptr);
@@ -274,6 +279,11 @@ void ASTCharacter::SetCharacterState(ECharacterState NewState)
 ECharacterState ASTCharacter::GetCharacterState() const
 {
 	return CurrentState;
+}
+
+int32 ASTCharacter::GetExp() const
+{
+	return CharacterStat->GetDropExp();
 }
 
 // Called when the game starts or when spawned
@@ -512,12 +522,15 @@ float ASTCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AC
 	STLOG(Warning, TEXT("Actor : %s took Damage : %f"), *GetName(), FinalDamage);
 
 	CharacterStat->SetDamage(FinalDamage);
-
-	//if (FinalDamage > 0.0f)
-	//{
-	//	STAnim->SetDeadAnim();
-	//	SetActorEnableCollision(false);
-	//}
+	if (CurrentState == ECharacterState::DEAD)
+	{
+		if (EventInstigator->IsPlayerController())
+		{
+			auto STPlayerContorller = Cast<ASTPlayerController>(EventInstigator);
+			STCHECK(STPlayerContorller != nullptr, 0.0f);
+			STPlayerContorller->NPCKill(this);
+		}
+	}
 
 
 	return FinalDamage;
