@@ -22,17 +22,27 @@ public:
 
 	int32 GetGameScore() const;
 	int32 GetCharacterLevel() const;
+	int32 GetGameHighScore() const;
+	FString SaveSlotName;
+
+
 	float GetExpRatio() const;
+
+
 	bool AddExp(int32 IncomExp);
 	void AddGameScore();
 
 	void InitPlayerData();
+	void SavePlayerData();
 
 	FOnPlayerStateChangedDelegate OnPlayerStateChanged; // for update widget
 
 protected:
 	UPROPERTY(Transient)
 	int32 GameScore;
+
+	UPROPERTY(Transient)
+	int32 GameHighScore;
 
 	UPROPERTY(Transient)
 	int32 CharacterLevel;

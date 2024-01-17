@@ -19,6 +19,8 @@ public:
 
 	virtual void PostInitializeComponents() override;
 	virtual void OnPossess(APawn* aPawn) override;
+	
+	virtual void SetPlayer(UPlayer* InPlayer) override;
 
 
 	class USTHUDWidget* GetHUDWidget() const;

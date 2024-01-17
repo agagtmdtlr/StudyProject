@@ -3,12 +3,16 @@
 
 #include "STPlayerState.h"
 #include "STGameInstance.h" // for STCharacterData
+#include "STSaveGame.h" // for USTGameSave
 
 ASTPlayerState::ASTPlayerState()
 {
 	CharacterLevel = 1;
 	GameScore = 0;
+	GameHighScore = 0;
 	Exp = 0;
+
+	SaveSlotName = TEXT("Player1");
 }
 
 int32 ASTPlayerState::GetGameScore() const
@@ -19,6 +23,11 @@ int32 ASTPlayerState::GetGameScore() const
 int32 ASTPlayerState::GetCharacterLevel() const
 {
 	return CharacterLevel;
+}
+
+int32 ASTPlayerState::GetGameHighScore() const
+{
+	return GameHighScore;
 }
 
 float ASTPlayerState::GetExpRatio() const
@@ -46,21 +55,53 @@ bool ASTPlayerState::AddExp(int32 IncomExp)
 	}
 
 	OnPlayerStateChanged.Broadcast();
+	SavePlayerData();
+
 	return DidLevelUp;
 }
 
 void ASTPlayerState::AddGameScore()
 {
 	GameScore++;
+	if (GameScore >= GameHighScore)
+	{
+		GameHighScore = GameScore;
+	}
+
 	OnPlayerStateChanged.Broadcast();
+	SavePlayerData();
 }
 
 void ASTPlayerState::InitPlayerData()
 {
-	SetPlayerName(TEXT("Destiny"));
-	SetCharacterLevel(5);
+
+	auto STSaveGame = Cast<USTSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
+	if (STSaveGame == nullptr)
+	{
+		STSaveGame = GetMutableDefault<USTSaveGame>();
+	}
+
+	SetPlayerName(STSaveGame->PlayerName);
+	SetCharacterLevel(STSaveGame->Level);
 	GameScore = 0;
-	Exp = 0;
+	GameHighScore = STSaveGame->HighScore;
+	Exp = STSaveGame->Exp;
+
+	SavePlayerData();
+}
+
+void ASTPlayerState::SavePlayerData()
+{
+	USTSaveGame* NewPlayerData = NewObject<USTSaveGame>();
+	NewPlayerData->PlayerName = GetPlayerName();
+	NewPlayerData->Level = GetCharacterLevel();
+	NewPlayerData->Exp = Exp;
+	NewPlayerData->HighScore = GetGameHighScore();
+
+	if (!UGameplayStatics::SaveGameToSlot(NewPlayerData, SaveSlotName, 0))
+	{
+		STLOG(Error, TEXT("SaveGame Error"));
+	}
 }
 
 void ASTPlayerState::SetCharacterLevel(int32 NewCharacterLevel)

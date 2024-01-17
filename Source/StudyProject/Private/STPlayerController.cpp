@@ -21,7 +21,6 @@ void ASTPlayerController::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	HUDWidget = CreateWidget<USTHUDWidget>(this, HUDWidgetClass);
 	//STLOG_S(Warning);
 }
 
@@ -31,6 +30,12 @@ void ASTPlayerController::OnPossess(APawn* aPawn)
 	Super::OnPossess(aPawn);
 }
 
+void ASTPlayerController::SetPlayer(UPlayer* InPlayer)
+{
+	Super::SetPlayer(InPlayer);
+
+}
+
 void ASTPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -38,6 +43,7 @@ void ASTPlayerController::BeginPlay()
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
 
+	HUDWidget = CreateWidget<USTHUDWidget>(this, HUDWidgetClass);
 	HUDWidget->AddToViewport();
 
 	STPlayerState = Cast<ASTPlayerState>(PlayerState);
