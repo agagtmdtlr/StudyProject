@@ -22,6 +22,7 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	void AddScore(class ASTPlayerController* ScoredPlayer);
+	int32 GetScore() const;
 
 private:
 	UPROPERTY()

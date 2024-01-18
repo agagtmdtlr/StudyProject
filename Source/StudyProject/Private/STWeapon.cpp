@@ -22,15 +22,38 @@ ASTWeapon::ASTWeapon()
 
 	Weapon->SetCollisionProfileName(TEXT("NoCollision"));
 
+	AttackRange = 150.0f;
+	AttackDamageMin = -2.5f;
+	AttackDamageMax = 10.0f;
+	AttackModifierMin = 0.85;
+	AttackModifierMax = 1.25f;
 
+}
 
+float ASTWeapon::GetAttackRange() const
+{
+	return AttackRange;
+}
 
+float ASTWeapon::GetAttackDamage() const
+{
+	return AttackDamage;
+}
+
+float ASTWeapon::GetAttackModifier() const
+{
+	return AttackModifier;
 }
 
 // Called when the game starts or when spawned
 void ASTWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AttackDamage = FMath::RandRange(AttackDamageMin, AttackDamageMax);
+	AttackModifier = FMath::RandRange(AttackModifierMin, AttackModifierMax);
+
+	STLOG(Warning, TEXT("Weapon Damage : %f, Modifier : %f"), AttackDamage, AttackModifier);
 	
 }
 

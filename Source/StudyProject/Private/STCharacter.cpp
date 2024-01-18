@@ -26,10 +26,12 @@
 
 #include "STHUDWidget.h"
 
+#include "STGameMode.h"
+
 // Sets default values
 ASTCharacter::ASTCharacter()
 	:
-	AttackRange(200.0f),
+	AttackRange(80.0f),
 	AttackRadius(50.0f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -201,8 +203,18 @@ void ASTCharacter::SetCharacterState(ECharacterState NewState)
 			auto STPlayerState = Cast<ASTPlayerState>(GetPlayerState());
 			STCHECK(STPlayerState != nullptr);
 			CharacterStat->SetNewLevel(STPlayerState->GetCharacterLevel());
-
 		}
+		else
+		{
+			auto STGameMode = Cast<ASTGameMode>(GetWorld()->GetAuthGameMode());
+			STCHECK(STGameMode != nullptr);
+			int32 TargetLevel = FMath::CeilToInt(((float)STGameMode->GetScore() * 0.8f));
+
+			int32 FinalLevel = FMath::Clamp<int32>(TargetLevel, 1, 20);
+			STLOG(Warning, TEXT("New NPC Level : %d"), FinalLevel);
+			CharacterStat->SetNewLevel(FinalLevel);
+		}
+
 
 		SetActorHiddenInGame(true);
 		HPBarWidget->SetHiddenInGame(true);
@@ -284,6 +296,20 @@ ECharacterState ASTCharacter::GetCharacterState() const
 int32 ASTCharacter::GetExp() const
 {
 	return CharacterStat->GetDropExp();
+}
+
+float ASTCharacter::GetFinalAttackRange() const
+{
+	return (CurrentWeapon != nullptr) ? CurrentWeapon->GetAttackRange() : AttackRange;
+}
+
+float ASTCharacter::GetFinalAttackDamage() const
+{
+	float AttackDamage = (CurrentWeapon != nullptr) ? (CharacterStat->GetAttack() + CurrentWeapon->GetAttackDamage()) : CharacterStat->GetAttack();
+
+	float AttackModifier = (CurrentWeapon != nullptr) ? (CurrentWeapon->GetAttackModifier()) : 1.0f;
+
+	return AttackDamage *  AttackModifier;
 }
 
 // Called when the game starts or when spawned
@@ -489,16 +515,26 @@ void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 bool ASTCharacter::CanSetWeapon()
 {
-	return CurrentWeapon == nullptr;
+	return true;// CurrentWeapon == nullptr;
 }
 
 void ASTCharacter::SetWeapon(ASTWeapon* NewWeapon)
 {
-	STCHECK(NewWeapon != nullptr && CurrentWeapon == nullptr);
+	STCHECK(NewWeapon != nullptr);
+
+	if (CurrentWeapon != nullptr)
+	{
+		CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		CurrentWeapon->Destroy();
+		CurrentWeapon = nullptr;//
+	}
+
+
 	FName WeaponSocket(TEXT("hand_rSocket"));
 	if (NewWeapon != nullptr)
 	{
 		NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
+		NewWeapon->SetOwner(this);//
 		CurrentWeapon = NewWeapon;
 	}
 }
@@ -676,11 +712,13 @@ void ASTCharacter::AttackEndComboState()
 
 void ASTCharacter::AttackCheck()
 {
+	float FinalAttackRange = GetFinalAttackRange();
+
 	FHitResult HitResult;
 	FCollisionQueryParams Params(NAME_None, false, this);
 	bool bResult = GetWorld()->SweepSingleByChannel(
 		HitResult, GetActorLocation(),
-		GetActorLocation() + GetActorForwardVector() * 200.0f,
+		GetActorLocation() + GetActorForwardVector() * FinalAttackRange,
 		FQuat::Identity,
 		ECollisionChannel::ECC_GameTraceChannel2,
 		FCollisionShape::MakeSphere(50.0f),
@@ -688,9 +726,9 @@ void ASTCharacter::AttackCheck()
 		);
 
 #if ENABLE_DRAW_DEBUG
-	FVector TraceVec = GetActorForwardVector() * AttackRange;
+	FVector TraceVec = GetActorForwardVector() * FinalAttackRange;
 	FVector CenterVec = GetActorLocation() + TraceVec * 0.5f;
-	float HalfHeight = AttackRange * 0.5f + AttackRadius;
+	float HalfHeight = FinalAttackRange * 0.5f + AttackRadius;
 	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
 	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
 	float DebugLifeTime = 5.0f;
@@ -699,6 +737,7 @@ void ASTCharacter::AttackCheck()
 
 #endif
 
+	// Collision Channel 에서 필터링 되었으므로 여기선 데미지 이벤트만 호출해주면 된다.
 	if (bResult)
 	{
 		if (AActor* Actor = HitResult.GetActor(); Actor != nullptr)
@@ -706,7 +745,7 @@ void ASTCharacter::AttackCheck()
 			STLOG(Warning, TEXT("Hit Actor Name : %s"), *Actor->GetName());
 
 			FDamageEvent DamageEvent;
-			Actor->TakeDamage( CharacterStat->GetAttack(), DamageEvent, GetController(), this);
+			Actor->TakeDamage( GetFinalAttackDamage(), DamageEvent, GetController(), this);
 		}
 	}
 }

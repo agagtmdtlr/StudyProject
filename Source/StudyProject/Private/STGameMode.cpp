@@ -63,4 +63,8 @@ void ASTGameMode::AddScore(class ASTPlayerController* ScoredPlayer)
 
 }
 
+int32 ASTGameMode::GetScore() const
+{
+	return STGameState->GetTotalGameScore();
+}
 
