@@ -28,6 +28,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void DrawDebugBoundardy();
+
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Component")
@@ -45,8 +47,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Boid")
 	UBoidActionModel* BoidActionModel;
 
-	UPROPERTY(EditAnywhere, Category = Boid)
+	UPROPERTY(EditAnywhere, Category="Boid")
 	int32 ElementCount;
+
+	UPROPERTY(EditAnywhere, Category=Debug)
+	bool bDebugBoundary;
 	 
 
 private:

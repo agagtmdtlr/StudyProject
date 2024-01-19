@@ -24,6 +24,7 @@ ABoidSimulator::ABoidSimulator()
 
 	ElementCount = 100;
 
+	bDebugBoundary = true;
 
 }
 
@@ -126,12 +127,39 @@ void ABoidSimulator::Tick(float DeltaTime)
 		Transform = FTransform(NewRotator ,Instance.Position);
 	}
 
-
-
 	ISMCompoent->BatchUpdateInstancesTransforms(0, InstanceMeshTranforms, true);
+
+	if (bDebugBoundary)
+	{
+		DrawDebugBoundardy();
+	}
 }
 
 
+
+void ABoidSimulator::DrawDebugBoundardy()
+{
+	UWorld* World = GetWorld();
+	FVector Location = GetActorLocation();
+	FVector MinLocation = Location - BoxHalfSize;
+	double GridExtent = GridSize * 0.5;
+
+	for (int x = 0; x < CellSize.X; ++x)
+	{
+		for (int y = 0; y < CellSize.Y; ++y)
+		{
+			for (int z = 0; z < CellSize.Z; ++z)
+			{
+
+				FVector DrawLocation = MinLocation + FVector(x * GridSize, y * GridSize, z * GridSize);
+				DrawLocation += FVector(GridExtent);
+
+				DrawDebugBox(World, DrawLocation, FVector(GridSize), FQuat::Identity, FColor::Red, false, 0.2f);
+
+			}
+		}
+	}
+}
 
 void ABoidSimulator::Resize(FIntVector NewSize)
 {
@@ -154,21 +182,7 @@ void ABoidSimulator::Resize(FIntVector NewSize)
 
 	double GridExtent = GridSize * 0.5;
 	
-	for (int x = 0; x < NewSize.X; ++x)
-	{
-		for (int y = 0; y < NewSize.Y; ++y)
-		{
-			for (int z = 0; z < NewSize.Z; ++z)
-			{
-
-				FVector DrawLocation = MinLocation + FVector(x * GridSize, y * GridSize, z * GridSize);
-				DrawLocation += FVector(GridExtent);
-
-				DrawDebugBox(World, DrawLocation , FVector(GridSize), FQuat::Identity, FColor::Red, true);
-
-			}
-		}
-	}
+	
 }
 
 
