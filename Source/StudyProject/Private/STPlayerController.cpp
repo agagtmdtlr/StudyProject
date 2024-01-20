@@ -4,6 +4,7 @@
 #include "STHUDWidget.h"
 #include "STPlayerState.h"
 #include "STCharacter.h"
+#include "STGameplayWidget.h"
 
 ASTPlayerController::ASTPlayerController()
 {
@@ -13,8 +14,15 @@ ASTPlayerController::ASTPlayerController()
 	if (UI_HUD_C.Succeeded())
 	{
 		HUDWidgetClass = UI_HUD_C.Class;
-
 	}
+
+	/// Script / UMGEditor.WidgetBlueprint'/Game/UI/UI_Menu.UI_Menu'
+	static ConstructorHelpers::FClassFinder<USTGameplayWidget> UI_Menu_C(TEXT("/Game/UI/UI_Menu.UI_Menu_C"));
+	if (UI_Menu_C.Succeeded())
+	{
+		MenuWidgetClass = UI_Menu_C.Class;
+	}
+
 }
 
 void ASTPlayerController::PostInitializeComponents()
@@ -40,17 +48,27 @@ void ASTPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FInputModeGameOnly InputMode;
-	SetInputMode(InputMode);
+	ChangeInputMode(true);
 
 	HUDWidget = CreateWidget<USTHUDWidget>(this, HUDWidgetClass);
-	HUDWidget->AddToViewport();
+	STCHECK(HUDWidget != nullptr);
+	HUDWidget->AddToViewport(1);
 
 	STPlayerState = Cast<ASTPlayerState>(PlayerState);
 	STCHECK(STPlayerState != nullptr);
 	HUDWidget->BindPlayerState(STPlayerState);
 	STPlayerState->OnPlayerStateChanged.Broadcast();
 
+}
+
+void ASTPlayerController::OnGamePause()
+{
+	MenuWidget = CreateWidget<USTGameplayWidget>(this, MenuWidgetClass);
+	STCHECK(MenuWidget != nullptr);
+	MenuWidget->AddToViewport(3);
+
+	SetPause(true);
+	ChangeInputMode(false);
 }
 
 USTHUDWidget* ASTPlayerController::GetHUDWidget() const
@@ -66,5 +84,19 @@ void ASTPlayerController::NPCKill(class ASTCharacter* KilledNPC) const
 void ASTPlayerController::AddGameScore() const
 {
 	STPlayerState->AddGameScore();
+}
+
+void ASTPlayerController::ChangeInputMode(bool bGameMode /*= true*/)
+{
+	if (bGameMode)
+	{
+		SetInputMode(GameInputMode);
+		bShowMouseCursor = false;
+	}
+	else
+	{
+		SetInputMode(UIInputMode);
+		bShowMouseCursor = true;
+	}
 }
 

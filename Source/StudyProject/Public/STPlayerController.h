@@ -27,17 +27,31 @@ public:
 	void NPCKill(class ASTCharacter* KilledNPC) const;
 	void AddGameScore() const;
 
+	void ChangeInputMode(bool bGameMode = true);
+
 protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = UI)
 	TSubclassOf<class USTHUDWidget> HUDWidgetClass;
 
+	UFUNCTION(BlueprintCallable)
+	void OnGamePause();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=UI)
+	TSubclassOf<class USTGameplayWidget> MenuWidgetClass;
+
 private:
 	UPROPERTY()
 	class USTHUDWidget* HUDWidget;
 
-
 	UPROPERTY()
 	class ASTPlayerState* STPlayerState; //
+
+	UPROPERTY()
+	class USTGameplayWidget* MenuWidget;
+
+	FInputModeGameOnly GameInputMode;
+	FInputModeUIOnly UIInputMode;
+
 };

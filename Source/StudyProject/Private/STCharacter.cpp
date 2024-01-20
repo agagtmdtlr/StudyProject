@@ -61,10 +61,7 @@ ASTCharacter::ASTCharacter()
 	SkeletaMeshComponent->SetRelativeRotation(FRotator(0.0f, -90.f, 0.f));
 	SkeletaMeshComponent->SetRelativeLocation(FVector(0.0f, 0.0f, -88.0f));
 		
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_Cardboard(TEXT("/Game/STPlayer/Mesh/SK_CharM_Cardboard.SK_CharM_Cardboard"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SKM_Quinn(TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn"));
-
-
 	if (SKM_Quinn.Succeeded())
 	{
 		SkeletaMeshComponent->SetSkeletalMesh(SKM_Quinn.Object);
@@ -289,7 +286,9 @@ void ASTCharacter::BeginPlay()
 
 	if (bIsPlayer)
 	{
-		AssetIndex = 4;
+		auto STPlayerState = Cast<ASTPlayerState>(GetPlayerState());
+		STCHECK(STPlayerState != nullptr);
+		AssetIndex = STPlayerState->GetCharacterIndex();
 	}
 	else
 	{

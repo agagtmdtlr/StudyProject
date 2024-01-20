@@ -91,6 +91,7 @@ void USTCharacterSelectWidget::OnConfirmClicked()
 	NewPlayerData->Level = 1;
 	NewPlayerData->Exp = 0;
 	NewPlayerData->HighScore = 0;
+	NewPlayerData->CharacterIndex = CurrentIndex;
 
 	auto STPlayerState = GetDefault<ASTPlayerState>();
 	if (UGameplayStatics::SaveGameToSlot(NewPlayerData, STPlayerState->SaveSlotName, 0))
