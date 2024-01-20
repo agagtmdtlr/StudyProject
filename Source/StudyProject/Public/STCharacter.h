@@ -88,41 +88,29 @@ public:
 	UPROPERTY(VisibleAnywhere, Category=Camera)
 	UCameraComponent* Camera;
 
-	UPROPERTY(VisibleAnywhere, Category=Input)
-	UInputAction* MovementAction;
-
-	UPROPERTY(VisibleAnywhere, Category=Input)
-	UInputAction* LookAction;
-
-	UPROPERTY(VisibleAnywhere, Category = Input)
-	UInputAction* AccelerateAction;
-
-	UPROPERTY(VisibleAnywhere, Category=Input)
-	UInputAction* ViewChangeAction;
-
-	UInputAction* JumpAction;
-
-	UInputAction* AttackAction;
-
-	UPROPERTY(VisibleAnywhere, Category=Input)
-	UInputMappingContext* MappingContext;
-
 
 	float Acceleration = 0.5f;
 
 
+	UFUNCTION(BlueprintCallable)
 	void Attack();
 	FOnAttackEndDelegate OnAttackEnd;
 
 private:
-	void PlaneMovement(const FInputActionValue& Value);
-	void CameraMovement(const FInputActionValue& Value);
-	void ChangeViewMode(const FInputActionValue& Value);
-	
-	void JumpCallback(const FInputActionValue& Value);
-	
+	UFUNCTION(BlueprintCallable)
+	void PlaneMovement(const FVector2D& Value);
 
-	void AccelerateMovement(const FInputActionValue& Value);
+	UFUNCTION(BlueprintCallable)
+	void CameraMovement(const FVector2D& Value);
+
+	UFUNCTION(BlueprintCallable)
+	void ChangeViewMode();
+	
+	UFUNCTION(BlueprintCallable)
+	void JumpCallback();
+	
+	UFUNCTION(BlueprintCallable)
+	void AccelerateMovement(const bool& IsPressed);
 
 	UFUNCTION()
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);

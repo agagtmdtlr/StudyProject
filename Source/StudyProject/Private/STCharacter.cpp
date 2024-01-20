@@ -81,57 +81,6 @@ ASTCharacter::ASTCharacter()
 		SkeletaMeshComponent->SetAnimInstanceClass(BP_WarriorAnim.Class);
 	}
 
-	// Enhanced Input Initialization
-	{
-		// Dynamic Input Asset
-		static ConstructorHelpers::FObjectFinder<UInputAction> IA_Move(TEXT("/Game/STPlayer/Input/Actions/IA_Move.IA_Move"));
-		if (IA_Move.Succeeded())
-		{
-			MovementAction = IA_Move.Object;
-		}
-
-		static ConstructorHelpers::FObjectFinder<UInputAction> IA_Look(TEXT("/Game/STPlayer/Input/Actions/IA_Look.IA_Look"));
-		if (IA_Look.Succeeded())
-		{
-			LookAction = IA_Look.Object;
-		}
-
-		static ConstructorHelpers::FObjectFinder<UInputAction> IA_ViewChange(TEXT("/Game/STPlayer/Input/Actions/IA_ViewChange.IA_ViewChange"));
-		if (IA_ViewChange.Succeeded())
-		{
-			ViewChangeAction = IA_ViewChange.Object;
-		}
-
-		static ConstructorHelpers::FObjectFinder<UInputAction> IA_Jump(TEXT("/Game/STPlayer/Input/Actions/IA_Jump.IA_Jump"));
-		if (IA_Jump.Succeeded())
-		{
-			JumpAction = IA_Jump.Object;
-		}
-
-		static ConstructorHelpers::FObjectFinder<UInputAction> IA_Attack(TEXT("/Game/ThirdPerson/Input/Actions/IA_Attack.IA_Attack"));
-		if (IA_Attack.Succeeded())
-		{
-			AttackAction = IA_Attack.Object;
-		}
-
-		static ConstructorHelpers::FObjectFinder<UInputAction> IA_Shift(TEXT("/Game/STPlayer/Input/Actions/IA_Shift.IA_Shift"));
-		if (IA_Shift.Succeeded())
-		{
-			AccelerateAction = IA_Shift.Object;
-		}
-
-		static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_StudProject(TEXT("/Game/STPlayer/Input/IMC_StudyProject.IMC_StudyProject"));
-		if (IMC_StudProject.Succeeded())
-		{
-			MappingContext = IMC_StudProject.Object;
-		}
-		else
-		{
-			STLOG(Warning, TEXT("Not Exist MAPPING CONTEXT"));
-		}
-	}
-
-	SetControlMode(EControlMode::TopView);
 
 	ArmLengthSpeed = 3.0f;
 	ArmRotationSpeed = 10.0f;
@@ -486,31 +435,6 @@ void ASTCharacter::PostInitializeComponents()
 void ASTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	if (enhancedInputComponent)
-	{
-		enhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &ASTCharacter::PlaneMovement);
-		enhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Completed, this, &ASTCharacter::PlaneMovement);
-
-		enhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASTCharacter::CameraMovement);
-		enhancedInputComponent->BindAction(LookAction, ETriggerEvent::Completed, this, &ASTCharacter::CameraMovement);
-
-		enhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASTCharacter::JumpCallback);
-
-		enhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ASTCharacter::Attack);
-
-		enhancedInputComponent->BindAction(AccelerateAction, ETriggerEvent::Triggered, this, &ASTCharacter::AccelerateMovement);
-		enhancedInputComponent->BindAction(AccelerateAction, ETriggerEvent::Completed, this, &ASTCharacter::AccelerateMovement);
-
-
-		const TArray<FEnhancedActionKeyMapping>& Mappings = MappingContext->GetMappings();
-		for (const FEnhancedActionKeyMapping& Map : Mappings)
-		{
-			STLOG(Warning, TEXT("Action Name : %s , Key : %s "), *(Map.Action->GetName()) , *(Map.Key.ToString()));			
-		}
-		
-		enhancedInputComponent->BindAction(ViewChangeAction, ETriggerEvent::Started, this, &ASTCharacter::ChangeViewMode);
-	}
 }
 
 bool ASTCharacter::CanSetWeapon()
@@ -542,14 +466,6 @@ void ASTCharacter::SetWeapon(ASTWeapon* NewWeapon)
 void ASTCharacter::PawnClientRestart()
 {
 	Super::PawnClientRestart();
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->ClearAllMappings();
-			Subsystem->AddMappingContext(MappingContext, 0);
-		}
-	}
 }
 
 float ASTCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -572,9 +488,9 @@ float ASTCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AC
 	return FinalDamage;
 }
 
-void ASTCharacter::PlaneMovement(const FInputActionValue& Value)
+void ASTCharacter::PlaneMovement(const FVector2D& Value)
 {
-	FVector2D Value2D = Value.Get<FVector2D>();
+	FVector2D Value2D = Value;
 	
 	Value2D *= Acceleration;
 
@@ -594,14 +510,14 @@ void ASTCharacter::PlaneMovement(const FInputActionValue& Value)
 	}
 }
 
-void ASTCharacter::CameraMovement(const FInputActionValue& Value)
+void ASTCharacter::CameraMovement(const FVector2D& Value)
 {
 	switch (CurrentControlMode)
 	{
 	case ASTCharacter::EControlMode::Orbit:
 	{
-		AddControllerPitchInput(Value[1]);
-		AddControllerYawInput(Value[0]);
+		AddControllerPitchInput(Value.Y);
+		AddControllerYawInput(Value.X);
 		break;
 	}
 	case ASTCharacter::EControlMode::TopView:
@@ -609,41 +525,33 @@ void ASTCharacter::CameraMovement(const FInputActionValue& Value)
 	default:
 		break;
 	}
-
-	//ST_LOG(Warning, TEXT("%f %f"), Value[0], Value[1]);
 	
 }
 
-void ASTCharacter::ChangeViewMode(const FInputActionValue& Value)
+void ASTCharacter::ChangeViewMode()
 {
-	bool IsPressed = Value.Get<bool>();
-	STLOG(Warning, TEXT("%s"), *FString(IsPressed ? "True" : "False"));
-
-	if (IsPressed)
+	switch (CurrentControlMode)
 	{
-		switch (CurrentControlMode)
-		{
-		case EControlMode::Orbit:
-		{
-			GetController()->SetControlRotation(GetActorRotation());
-			break;
-		}
-		case EControlMode::TopView:
-		{
-			
-			GetController()->SetControlRotation(SpringArm->GetRelativeRotation());
-			break;
-		}
-		}
+	case EControlMode::Orbit:
+	{
+		GetController()->SetControlRotation(GetActorRotation());
+		break;
+	}
+	case EControlMode::TopView:
+	{
 
-		uint32 ControlModeI = static_cast<uint32>(CurrentControlMode);
-		ControlModeI = (ControlModeI + 1) % static_cast<uint32>(EControlMode::ModeCount);
-		SetControlMode(static_cast<EControlMode>(ControlModeI));
+		GetController()->SetControlRotation(SpringArm->GetRelativeRotation());
+		break;
+	}
+	}
 
-	}	
+	uint32 ControlModeI = static_cast<uint32>(CurrentControlMode);
+	ControlModeI = (ControlModeI + 1) % static_cast<uint32>(EControlMode::ModeCount);
+	SetControlMode(static_cast<EControlMode>(ControlModeI));
+
 }
 
-void ASTCharacter::JumpCallback(const FInputActionValue& Value)
+void ASTCharacter::JumpCallback()
 {
 	Jump();
 }
@@ -669,10 +577,8 @@ void ASTCharacter::Attack()
 	}
 }
 
-void ASTCharacter::AccelerateMovement(const FInputActionValue& Value)
+void ASTCharacter::AccelerateMovement(const bool& IsPressed)
 {
-	bool IsPressed = Value.Get<bool>();
-
 	if(IsPressed)
 	{
 		Acceleration = 1.0f;

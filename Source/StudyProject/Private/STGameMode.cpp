@@ -11,6 +11,8 @@
 ASTGameMode::ASTGameMode()
 {
 	//DefaultPawnClass = ASTPawn::StaticClass();
+
+
 	DefaultPawnClass = ASTCharacter::StaticClass();
 	PlayerControllerClass = ASTPlayerController::StaticClass();
 	PlayerStateClass = ASTPlayerState::StaticClass();
