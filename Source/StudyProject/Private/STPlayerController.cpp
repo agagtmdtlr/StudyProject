@@ -5,6 +5,8 @@
 #include "STPlayerState.h"
 #include "STCharacter.h"
 #include "STGameplayWidget.h"
+#include "STGameplayResultWidget.h"
+#include "STGameState.h"
 
 ASTPlayerController::ASTPlayerController()
 {
@@ -21,6 +23,12 @@ ASTPlayerController::ASTPlayerController()
 	if (UI_Menu_C.Succeeded())
 	{
 		MenuWidgetClass = UI_Menu_C.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<USTGameplayResultWidget> UI_Result_C(TEXT("/Game/UI/UI_Result.UI_Result_C"));
+	if (UI_Result_C.Succeeded())
+	{
+		ResultWidgetClass = UI_Result_C.Class;
 	}
 
 }
@@ -58,6 +66,9 @@ void ASTPlayerController::BeginPlay()
 	STCHECK(STPlayerState != nullptr);
 	HUDWidget->BindPlayerState(STPlayerState);
 	STPlayerState->OnPlayerStateChanged.Broadcast();
+
+	ResultWidget = CreateWidget<USTGameplayResultWidget>(this, ResultWidgetClass);
+	STCHECK(ResultWidget != nullptr);
 
 }
 
@@ -98,5 +109,16 @@ void ASTPlayerController::ChangeInputMode(bool bGameMode /*= true*/)
 		SetInputMode(UIInputMode);
 		bShowMouseCursor = true;
 	}
+}
+
+void ASTPlayerController::ShowResultUI()
+{
+	ASTGameState* STGameState = Cast<ASTGameState>(UGameplayStatics::GetGameState(this));
+	STCHECK(STGameState != nullptr);
+	ResultWidget->BindGameState(STGameState);
+
+	ResultWidget->AddToViewport();
+	ChangeInputMode(false);
+
 }
 

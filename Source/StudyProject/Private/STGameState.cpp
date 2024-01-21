@@ -6,6 +6,7 @@
 ASTGameState::ASTGameState()
 {
 	TotalGameScore = 0;
+	bGameCleared = false;
 }
 
 int32 ASTGameState::GetTotalGameScore() const
@@ -16,4 +17,14 @@ int32 ASTGameState::GetTotalGameScore() const
 void ASTGameState::AddGameScore()
 {
 	TotalGameScore++;
+}
+
+void ASTGameState::SetGameCleared()
+{
+	bGameCleared = true;
+}
+
+bool ASTGameState::IsGameCleared() const
+{
+	return bGameCleared;
 }

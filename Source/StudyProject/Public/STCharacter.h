@@ -12,6 +12,9 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
+class ASTCharacterMovementComponent;
+
+
 struct FInputActionValue;
 
 
@@ -36,6 +39,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+
+public:
 	enum class EControlMode : uint32
 	{
 		Orbit,
@@ -44,9 +49,11 @@ protected:
 		ModeCount,
 	};
 
+	EControlMode GetControlMode() const;
+protected:
 	void SetControlMode(EControlMode ControlMode);
 	EControlMode CurrentControlMode = EControlMode::Orbit;
-	FVector DirectionToMove = FVector::ZeroVector;
+
 
 	float ArmLengthTo = 0.0f;
 	FRotator ArmRotationTo = FRotator::ZeroRotator;
@@ -88,18 +95,11 @@ public:
 	UPROPERTY(VisibleAnywhere, Category=Camera)
 	UCameraComponent* Camera;
 
-
-	float Acceleration = 0.5f;
-
-
 	UFUNCTION(BlueprintCallable)
 	void Attack();
 	FOnAttackEndDelegate OnAttackEnd;
 
 private:
-	UFUNCTION(BlueprintCallable)
-	void PlaneMovement(const FVector2D& Value);
-
 	UFUNCTION(BlueprintCallable)
 	void CameraMovement(const FVector2D& Value);
 
@@ -109,9 +109,6 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void JumpCallback();
 	
-	UFUNCTION(BlueprintCallable)
-	void AccelerateMovement(const bool& IsPressed);
-
 	UFUNCTION()
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 

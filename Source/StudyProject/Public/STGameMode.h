@@ -28,5 +28,6 @@ private:
 	UPROPERTY()
 	class ASTGameState* STGameState;
 
-	
+	UPROPERTY()
+	int32 ScoreToClear;
 };

@@ -29,6 +29,8 @@ public:
 
 	void ChangeInputMode(bool bGameMode = true);
 
+	void ShowResultUI();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -40,6 +42,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=UI)
 	TSubclassOf<class USTGameplayWidget> MenuWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category=UI)
+	TSubclassOf<class USTGameplayResultWidget> ResultWidgetClass;
 
 private:
 	UPROPERTY()
@@ -53,5 +58,8 @@ private:
 
 	FInputModeGameOnly GameInputMode;
 	FInputModeUIOnly UIInputMode;
+
+	UPROPERTY()
+	class USTGameplayResultWidget* ResultWidget;
 
 };

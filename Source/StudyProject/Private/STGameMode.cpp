@@ -7,6 +7,7 @@
 #include "STPlayerController.h"
 #include "STPlayerState.h"
 #include "STGameState.h"
+#include "Engine/PawnIterator.h"
 
 ASTGameMode::ASTGameMode()
 {
@@ -17,6 +18,8 @@ ASTGameMode::ASTGameMode()
 	PlayerControllerClass = ASTPlayerController::StaticClass();
 	PlayerStateClass = ASTPlayerState::StaticClass();
 	GameStateClass = ASTGameState::StaticClass();
+
+	ScoreToClear = 2;
 }
 
 void ASTGameMode::PostInitializeComponents()
@@ -62,6 +65,28 @@ void ASTGameMode::AddScore(class ASTPlayerController* ScoredPlayer)
 	}
 
 	STGameState->AddGameScore();
+
+
+	if (GetScore() >= ScoreToClear)
+	{
+		STGameState->SetGameCleared();
+
+		for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
+		{
+			(*It)->TurnOff();
+		}
+
+
+		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+		{
+			const auto STPlayerController = Cast<ASTPlayerController>(It->Get());
+			if (STPlayerController != nullptr )
+			{
+				STPlayerController->ShowResultUI();
+			}
+		}
+	}
+
 
 }
 

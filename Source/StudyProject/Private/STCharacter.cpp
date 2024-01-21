@@ -28,6 +28,8 @@
 
 #include "STGameMode.h"
 
+#include "Component/STCharacterMovementComponent.h"
+
 // Sets default values
 ASTCharacter::ASTCharacter()
 	:
@@ -81,6 +83,8 @@ ASTCharacter::ASTCharacter()
 
 	ArmLengthSpeed = 3.0f;
 	ArmRotationSpeed = 10.0f;
+
+	
 
 	GetCharacterMovement()->JumpZVelocity = 800.0f;
 
@@ -208,7 +212,9 @@ void ASTCharacter::SetCharacterState(ECharacterState NewState)
 
 		if (bIsPlayer)
 		{
-			DisableInput(STPlayerController);
+			STPlayerController->ShowResultUI();
+
+			//DisableInput(STPlayerController);
 		}
 		else
 		{
@@ -313,8 +319,8 @@ void ASTCharacter::BeginPlay()
 
 void ASTCharacter::SetControlMode(EControlMode ControlMode)
 {
-	if (CurrentControlMode == ControlMode)
-		return;
+	//if (CurrentControlMode == ControlMode)
+	//	return;
 
 	CurrentControlMode = ControlMode;
 
@@ -372,12 +378,22 @@ void ASTCharacter::SetControlMode(EControlMode ControlMode)
 	
 }
 
+ASTCharacter::EControlMode ASTCharacter::GetControlMode() const
+{
+	return CurrentControlMode;
+}
+
 // Called every frame
 void ASTCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// camera blending
 	SpringArm->TargetArmLength = FMath::FInterpTo(SpringArm->TargetArmLength, ArmLengthTo, DeltaTime, ArmLengthSpeed);
+
+	USTCharacterMovementComponent* STCharacterMovement =  Cast<USTCharacterMovementComponent>(GetCharacterMovement());
+	STCHECK(STCharacterMovement != nullptr);
+	FVector DirectionToMove = STCharacterMovement->GetDirectionToMove();
 
 	switch (CurrentControlMode)
 	{
@@ -389,7 +405,6 @@ void ASTCharacter::Tick(float DeltaTime)
 			SpringArm->SetRelativeRotation( NewRelativeRotation );
 
 			GetController()->SetControlRotation(FRotationMatrix::MakeFromX(DirectionToMove).Rotator());
-			AddMovementInput(DirectionToMove);
 		}
 		break;
 	}
@@ -487,28 +502,6 @@ float ASTCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AC
 	return FinalDamage;
 }
 
-void ASTCharacter::PlaneMovement(const FVector2D& Value)
-{
-	FVector2D Value2D = Value;
-	
-	Value2D *= Acceleration;
-
-	switch (CurrentControlMode)
-	{
-	case EControlMode::Orbit:
-	{
-		AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X), Value2D.Y);
-		AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y), Value2D.X);
-		break;
-	}
-	case EControlMode::TopView:
-	{
-		DirectionToMove.X = Value2D.Y;
-		DirectionToMove.Y = Value2D.X;
-	}
-	}
-}
-
 void ASTCharacter::CameraMovement(const FVector2D& Value)
 {
 	switch (CurrentControlMode)
@@ -523,8 +516,7 @@ void ASTCharacter::CameraMovement(const FVector2D& Value)
 		break;
 	default:
 		break;
-	}
-	
+	}	
 }
 
 void ASTCharacter::ChangeViewMode()
@@ -576,18 +568,7 @@ void ASTCharacter::Attack()
 	}
 }
 
-void ASTCharacter::AccelerateMovement(const bool& IsPressed)
-{
-	if(IsPressed)
-	{
-		Acceleration = 1.0f;
-	}
-	else
-	{
-		Acceleration = 0.5f;
-	}
 
-}
 
 void ASTCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {

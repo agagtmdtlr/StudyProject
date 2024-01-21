@@ -3,6 +3,7 @@
 
 #include "STGameplayWidget.h"
 #include "Components/Button.h"
+#include "STPlayerController.h"
 
 void USTGameplayWidget::NativeConstruct()
 {
@@ -30,13 +31,24 @@ void USTGameplayWidget::NativeConstruct()
 
 void USTGameplayWidget::OnResumeClikced()
 {
+	auto STPlayerController = Cast<ASTPlayerController>(GetOwningPlayer());
+	STCHECK(STPlayerController != nullptr);
 
+	RemoveFromParent();
+
+	STPlayerController->ChangeInputMode(true);
+	STPlayerController->SetPause(false);
 }
 
 void USTGameplayWidget::OnReturnToTitleClicked()
 {
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("Title"));
 }
 
 void USTGameplayWidget::OnRetryGameClicked()
 {
+	auto STPlayerController = Cast<ASTPlayerController>(GetOwningPlayer());
+	STCHECK(STPlayerController != nullptr);
+
+	STPlayerController->RestartLevel();
 }
