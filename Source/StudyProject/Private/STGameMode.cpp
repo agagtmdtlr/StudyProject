@@ -2,9 +2,9 @@
 
 #include "STGameMode.h"
 #include "StudyProject.h"
-#include "STCharacter.h"
-#include "STPawn.h"
-#include "STPlayerController.h"
+#include "Actor/STCharacter.h"
+#include "Actor/STPawn.h"
+#include "Controller/STPlayerController.h"
 #include "STPlayerState.h"
 #include "STGameState.h"
 #include "Engine/PawnIterator.h"

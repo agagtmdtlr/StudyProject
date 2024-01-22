@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Component/STCharacterMovementComponent.h"
-#include "STCharacter.h"
+#include "Actor/STCharacter.h"
 
 USTCharacterMovementComponent::USTCharacterMovementComponent(const FObjectInitializer& ObjectInitializer /*= FObjectInitializer::Get()*/)
 	:UCharacterMovementComponent(ObjectInitializer)

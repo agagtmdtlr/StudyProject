@@ -4,7 +4,7 @@
 
 #include "StudyProject.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "STCharacter.h"
+#include "Actor/STCharacter.h"
 #include "STCharacterMovementComponent.generated.h"
 
 
