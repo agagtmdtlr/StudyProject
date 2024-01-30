@@ -10,7 +10,7 @@ public class StudyProject : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG","NavigationSystem", "AIModule" , "GameplayTasks"});
 
-		PublicDependencyModuleNames.AddRange(new string[] { "EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[] { "EnhancedInput", "GeometryCore"});
 
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  "StudyProjectSetting" });

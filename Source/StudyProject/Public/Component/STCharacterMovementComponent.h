@@ -8,6 +8,8 @@
 #include "STCharacterMovementComponent.generated.h"
 
 
+DECLARE_MULTICAST_DELEGATE(FOnJumpStartDelegate);
+
 class ASTCharacter;
 /**
  * 
@@ -23,15 +25,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PlaneMovement(const FVector2D& Value);
 	
-
 	UFUNCTION(BlueprintCallable)
 	void AccelerateMovement(const bool& IsPressed);
+
+	UFUNCTION(BlueprintCallable)
+	void Jump();
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
 
 	FVector GetDirectionToMove() const;;
 
 	void OnControlModeChanged();
+
+	FOnJumpStartDelegate OnJumpStartDelegate;
+
 
 
 private:

@@ -49,6 +49,12 @@ void USTCharacterMovementComponent::AccelerateMovement(const bool& IsPressed)
 
 
 
+void USTCharacterMovementComponent::Jump()
+{
+	ASTCharacter* STCharacter = GetSTCharacter();
+	STCharacter->Jump();
+}
+
 void USTCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);

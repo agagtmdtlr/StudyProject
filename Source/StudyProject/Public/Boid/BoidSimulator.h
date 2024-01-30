@@ -10,6 +10,7 @@
 #include "BoidSimulator.generated.h"
 
 class UInstancedStaticMeshComponent;
+class UBoidActionComponent;
 
 UCLASS()
 class STUDYPROJECT_API ABoidSimulator : public AActor
@@ -38,6 +39,9 @@ private:
 	UPROPERTY(EditAnywhere, Category="Mesh")
 	UStaticMesh* MeshToInstance;
 
+	UPROPERTY(EditAnywhere, Category = "Component")
+	TObjectPtr<UBoidActionComponent> BoidActionComponent;
+
 	UPROPERTY(EditAnywhere, Category = "Grid")
 	double GridSize; 
 
@@ -62,7 +66,7 @@ private:
 
 	FVector BoxHalfSize;
 	
-	TUniquePtr<TBoidGrid<FBoid>> Grid;
+	TUniquePtr<FBoidGrid> Grid;
 
 	TArray<FBoid> BoidInstances;
 	TArray<FTransform> InstanceMeshTranforms;

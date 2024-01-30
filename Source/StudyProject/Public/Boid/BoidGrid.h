@@ -5,85 +5,72 @@
 
 #include "StudyProject.h"
 #include "Boid/Boid.h"
-#include <vector>
 #include <set>
 #include <unordered_map>
 #include "Templates/Function.h"
-#include <type_traits>
 
+#include "Spatial/SparseGrid3.h"
+
+
+using namespace UE::Geometry;
 /**
  * 
  */
-
-
-template<typename T>
-struct TBoidCell
+struct FBoidCell
 {
-	FORCEINLINE TBoidCell();
-	void Insert(T* Element);
-	void Erase(T* Element);
-	void ForEach(TFunctionRef<void(T*, std::vector<TBoidCell<T>*>&)> Executer);
-
-	FIntVector Index;
-	FVector Min;
-	FVector Max;
-
-	std::vector<TBoidCell<T>*> NearestCells;
-
-	std::set<T*> Elements;
+	std::set<FBoid*> Elements;
+	FVector3i Index;
 };
 
-template<typename T>
-void TBoidCell<T>::ForEach(TFunctionRef<void(T*, std::vector<TBoidCell<T>*>&)> Executer )
+struct FBoidGrid
 {
-	if (IsBound(Executer))
-	{
-		for (T* Element : Elements)
-		{
-			Executer(Element , NearestCells);
-		}
-	}
-}
-
-template<typename T>
-void TBoidCell<T>::Erase(T* Element)
-{
-	Elements.erase(Element);
-}
-
-template<typename T>
-void TBoidCell<T>::Insert(T* Element)
-{	
-	Elements.insert(Element);
-}
-
-template<typename T>
-FORCEINLINE TBoidCell<T>::TBoidCell()
-{
-}
-
-template<typename T>
-struct TBoidGrid
-{
-	//static_assert(std::is_base_of<UBoid,T>, "T muse be derived UBoid Class");
+	//static_assert(std::is_base_of<UBoid,FBoid>, "FBoid muse be derived UBoid Class");
 
 public:
-	FORCEINLINE TBoidGrid(FIntVector Dimensions);
-	void Insert(T* Element, FIntVector Index);
-	void Erase(T* Element, FIntVector Index);
-	FORCEINLINE TBoidCell<T>& At(FIntVector Index);
+	FORCEINLINE FBoidGrid(FVector3i Dimensions);
+	FORCEINLINE FBoidCell* At(FVector3i Index);
 
-	FORCEINLINE bool InnerBoundary(FIntVector Index) const;
+	
+	FORCEINLINE bool InnerBoundary(FVector3i Index) const;
+	FORCEINLINE void FreeAll();
+	FORCEINLINE void Insert(FVector3i Index, FBoid* NewBoid);
 
-	TArray<TBoidCell<T>*> GetNearestCells(FIntVector Index);
+	FORCEINLINE TArray<FBoidCell*> GetNearestCells(FVector3i Index);
 
-	FIntVector Size;
+	TSparseGrid3<FBoidCell> Cells;
+	//TSparseGrid3<FBoidCell> Cells;
 
-	std::vector<TBoidCell<T>> Cells; // 3D to linear list
+	FVector3i Size;
 };
 
-template<typename T>
-FORCEINLINE bool TBoidGrid<T>::InnerBoundary(FIntVector Index) const
+FORCEINLINE FBoidGrid::FBoidGrid(FVector3i Dimensions)
+	:Size(Dimensions)
+{
+
+}
+
+FORCEINLINE void FBoidGrid::FreeAll()
+{
+	Cells.FreeAll();
+}
+
+FORCEINLINE void FBoidGrid::Insert(FVector3i Index, FBoid* NewBoid)
+{
+	if (Cells.Has(Index))
+	{
+		FBoidCell* Cell = Cells.Get(Index, false);
+		Cell->Elements.insert(NewBoid);
+	}
+	else
+	{
+		FBoidCell* Cell = Cells.Get(Index, true);
+		Cell->Index = Index;
+		Cell->Elements.insert(NewBoid);
+	}
+
+}
+
+FORCEINLINE bool FBoidGrid::InnerBoundary(FVector3i Index) const
 {
 	if (Index.X < 0 || Index.X >= Size.X)
 		return false;
@@ -97,64 +84,30 @@ FORCEINLINE bool TBoidGrid<T>::InnerBoundary(FIntVector Index) const
 	return true;
 }
 
-template<typename T>
-TArray<TBoidCell<T>*> TBoidGrid<T>::GetNearestCells(FIntVector Index)
+FORCEINLINE TArray<FBoidCell*> FBoidGrid::GetNearestCells(FVector3i Index)
 {
-	TArray<TBoidCell<T>*> NearestCells;
-	//std::vector<TBoidCell<T>*> NearestCells;
+	TArray<FBoidCell*> NearestCells;
 	NearestCells.Reserve(27);
 
 	constexpr int dr[3] = { -1,0,1 };
 	for (int i = 0; i < 27; ++i)
 	{
-		FIntVector NewIndex(Index.X + dr[ i % 3 ], Index.Y + dr[(i % 9) / 3], Index.Z + dr[i / 9]);
+		FVector3i NewIndex(Index.X + dr[ i % 3 ], Index.Y + dr[(i % 9) / 3], Index.Z + dr[i / 9]);
 		if (InnerBoundary(NewIndex))
 		{
-			NearestCells.Add(&At(NewIndex));
-			//NearestCells.push_back(&At(NewIndex));
-			//At(NewIndex).Index = NewIndex;
+			if( Cells.Has(NewIndex))
+				NearestCells.Add(Cells.Get(NewIndex, false));
 		}
 	}
 
 	return NearestCells;
 }
 
-template<typename T>
-FORCEINLINE TBoidCell<T>& TBoidGrid<T>::At(FIntVector Index)
+
+FORCEINLINE FBoidCell* FBoidGrid::At(FVector3i Index)
 {
-	check(InnerBoundary(Index));
-	return Cells[ Size.X * ( Size.Y  * Index.Z + Index.Y ) + Index.X];
+	check(InnerBoundary(Index));	
+	return Cells.Get(Index, false);
 }
 
-template<typename T>
-void TBoidGrid<T>::Insert(T* Element, FIntVector Index)
-{
-	check(InnerBoundary(Index));
-	At(Index).Insert(Element);
-}
 
-template<typename T>
-void TBoidGrid<T>::Erase(T* Element, FIntVector Index)
-{
-	check(InnerBoundary(Index));
-	At(Index).Erase(Element);
-}
-
-template<typename T>
-FORCEINLINE TBoidGrid<T>::TBoidGrid(FIntVector Dimensions)
-	:Size(Dimensions)
-{
-	Cells.resize( Dimensions.X * Dimensions.Y * Dimensions.Z);
-
-	int CellSize = Cells.size();
-
-	int PlaneSize = Dimensions.X * Dimensions.Y;
-	for (int i = 0; i < CellSize; i++)
-	{
-		FIntVector NewIndex(i % Dimensions.X, ( i % PlaneSize) / Dimensions.Y, i / PlaneSize);
-		Cells[i].Index = NewIndex;
-	}
-}
-
-using FBoidCell = TBoidCell<FBoid>;
-using FBoidGrid = TBoidGrid<FBoid>;

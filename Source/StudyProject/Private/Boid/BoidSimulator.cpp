@@ -4,6 +4,11 @@
 #include "Boid/BoidSimulator.h"
 #include "DrawDebugHelpers.h"
 #include "Components/InstancedStaticMeshComponent.h"
+#include "Boid/BoidActionComponent.h"
+
+#include "Spatial/SparseGrid3.h"
+
+using namespace UE::Geometry;
 
 // Sets default values
 ABoidSimulator::ABoidSimulator()
@@ -19,6 +24,8 @@ ABoidSimulator::ABoidSimulator()
 	ISMCompoent->SetStaticMesh(MeshToInstance);
 
 	BoidActionModel = CreateDefaultSubobject<UBoidActionModel>(TEXT("BoidActionModel"));
+
+	BoidActionComponent = CreateDefaultSubobject<UBoidActionComponent>(TEXT("BoidActionComponent"));
 	
 	UuidGenerator = 0;
 
@@ -104,19 +111,16 @@ void ABoidSimulator::Tick(float DeltaTime)
 
 	UWorld* World = GetWorld();	
 
-	for (FBoidCell& Cell : Grid->Cells)
-	{
-		if (Cell.Elements.empty()) continue;
+	TFunctionRef<void(FBoidCell*)> FunctionObject([&](FBoidCell* Cell)->void {
 
-		TArray<FBoidCell*> NearestCells = Grid->GetNearestCells(Cell.Index);
-
-		for (FBoid* Element : Cell.Elements)
+		TArray<FBoidCell*> NearestCells = Grid->GetNearestCells(Cell->Index);
+		for (FBoid* Element : Cell->Elements)
 		{
 			BoidActionModel->UpdateBoid(Element, NearestCells, DeltaTime);
 		}
-	}
+	});
 
-
+	Grid->Cells.AllocatedIteration(FunctionObject);
 
 	for (FBoid& Instance : BoidInstances)
 	{
@@ -171,7 +175,9 @@ void ABoidSimulator::Resize(FIntVector NewSize)
 	CellSize = NewSize;
 
 	Grid.Release();
-	Grid = TUniquePtr<TBoidGrid<FBoid>>(new TBoidGrid<FBoid>(NewSize));
+
+	FVector3i NewSizeI(NewSize.X, NewSize.Y, NewSize.Z);
+	Grid = TUniquePtr<FBoidGrid>(new FBoidGrid(NewSizeI));
 	BoxHalfSize = FVector(NewSize) / 2 * GridSize;
 
 	UWorld* World = GetWorld();
@@ -201,9 +207,9 @@ void ABoidSimulator::Insert(FBoid* NewBoid)
 	static FVector LocalPosition;
 	LocalPosition = NewBoid->Position - MinLocation;
 	LocalPosition -= FVector(GridSize * 0.5f); // floor to lower
-	static FIntVector LocalIndex; 
-	LocalIndex = FIntVector(LocalPosition.GridSnap(GridSize) / GridSize);
+	static FVector3i LocalIndex; 
+	LocalIndex = FVector3i(LocalPosition.GridSnap(GridSize) / GridSize);
 	
-	Grid->Insert(NewBoid, LocalIndex);
+	Grid->Insert(LocalIndex, NewBoid);
 }
 
