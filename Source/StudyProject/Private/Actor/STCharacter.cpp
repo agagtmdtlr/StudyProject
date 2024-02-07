@@ -73,6 +73,7 @@ ASTCharacter::ASTCharacter()
 		STLOG(Warning, TEXT("Not Exist skeletalmesh"));
 	}
 
+
 	SkeletaMeshComponent->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	static ConstructorHelpers::FClassFinder<UAnimInstance> BP_WarriorAnim(TEXT("/Game/STPlayer/Animation/BP_WarriorAnim.BP_WarriorAnim_C"));
 	if (BP_WarriorAnim.Succeeded())
@@ -372,6 +373,23 @@ void ASTCharacter::SetControlMode(EControlMode ControlMode)
 		characterMovement->bUseControllerDesiredRotation = false;
 		characterMovement->bOrientRotationToMovement = true;
 		characterMovement->RotationRate = FRotator(0.0f, 480.0f, 0.0f);		
+		break;
+	}
+	case EControlMode::Shooter:
+	{
+		SpringArm->SetRelativeLocation(FVector(20, -40, 0));
+
+		SpringArm->bUsePawnControlRotation = true;
+		SpringArm->bInheritPitch = true;
+		SpringArm->bInheritYaw = true;
+		SpringArm->bInheritRoll = false;
+		SpringArm->bDoCollisionTest = true;
+
+		bUseControllerRotationYaw = true;
+
+		characterMovement->bOrientRotationToMovement = true;
+		characterMovement->bUseControllerDesiredRotation = true;
+		characterMovement->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
 		break;
 	}
 	}

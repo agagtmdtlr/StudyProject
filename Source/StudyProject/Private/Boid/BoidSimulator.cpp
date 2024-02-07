@@ -111,6 +111,14 @@ void ABoidSimulator::Tick(float DeltaTime)
 
 	UWorld* World = GetWorld();	
 
+	//Grid->Cells.FreeAll();
+	//
+	//for (FBoid& Instance : BoidInstances)
+	//{
+	//	Insert(&Instance);
+	//}
+
+
 	TFunctionRef<void(FBoidCell*)> FunctionObject([&](FBoidCell* Cell)->void {
 
 		TArray<FBoidCell*> NearestCells = Grid->GetNearestCells(Cell->Index);
@@ -148,21 +156,32 @@ void ABoidSimulator::DrawDebugBoundardy()
 	FVector MinLocation = Location - BoxHalfSize;
 	double GridExtent = GridSize * 0.5;
 
-	for (int x = 0; x < CellSize.X; ++x)
-	{
-		for (int y = 0; y < CellSize.Y; ++y)
-		{
-			for (int z = 0; z < CellSize.Z; ++z)
-			{
+	TFunctionRef<void(FBoidCell*)> FunctionObject([&](FBoidCell* Cell)->void {
 
-				FVector DrawLocation = MinLocation + FVector(x * GridSize, y * GridSize, z * GridSize);
-				DrawLocation += FVector(GridExtent);
+		FVector3i Index = Cell->Index;
+		FVector DrawLocation = MinLocation + FVector(Index.X * GridSize, Index.Y * GridSize, Index.Z * GridSize);
+		DrawLocation += FVector(GridExtent);
+		DrawDebugBox(World, DrawLocation, FVector(GridExtent), FQuat::Identity, FColor::Red, false, 0.2f);
+	});
 
-				DrawDebugBox(World, DrawLocation, FVector(GridSize), FQuat::Identity, FColor::Red, false, 0.2f);
+	Grid->Cells.AllocatedIteration(FunctionObject);
 
-			}
-		}
-	}
+
+	//for (int x = 0; x < CellSize.X; ++x)
+	//{
+	//	for (int y = 0; y < CellSize.Y; ++y)
+	//	{
+	//		for (int z = 0; z < CellSize.Z; ++z)
+	//		{
+	//
+	//			FVector DrawLocation = MinLocation + FVector(x * GridSize, y * GridSize, z * GridSize);
+	//			DrawLocation += FVector(GridExtent);
+	//
+	//			DrawDebugBox(World, DrawLocation, FVector(GridSize), FQuat::Identity, FColor::Red, false, 0.2f);
+	//
+	//		}
+	//	}
+	//}
 }
 
 void ABoidSimulator::Resize(FIntVector NewSize)

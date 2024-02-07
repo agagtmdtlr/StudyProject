@@ -14,4 +14,7 @@ class STUDYPROJECT_API UShooterAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 	
+
+private:
+
 };

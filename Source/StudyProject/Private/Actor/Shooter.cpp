@@ -6,7 +6,12 @@
 #include "Animation/AnimInstance.h"
 #include "Components/SkeletalMeshComponent.h" 
 #include "Engine/SkeletalMesh.h"
-
+#include "GameFramework/SpringArmComponent.h"
+#include "Component/STCharacterStatComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "EnhancedInputComponent.h"
+#include "STInputConfig.h"
+#include "Actor/STGun.h"
 
 // Sets default values
 AShooter::AShooter()
@@ -17,17 +22,48 @@ AShooter::AShooter()
 	USkeletalMeshComponent* SkeletalMeshComp = GetMesh();
 	SkeletalMeshComp->SetRelativeRotation(FRotator(0.0f, -90.f, 0.f));
 	SkeletalMeshComp->SetRelativeLocation(FVector(0.0f, 0.0f, -88.0f));
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SKM_Shooter(TEXT("/Game/Characters/Heroes/Mannequin/Meshes/SKM_Quinn.SKM_Quinn"));
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SKM_Shooter(TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn"));
 	if (SKM_Shooter.Succeeded())
 	{
 		SkeletalMeshComp->SetSkeletalMesh(SKM_Shooter.Object);
 	}
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> BP_AnimInst(TEXT("/Game/Characters/Heroes/Mannequin/Animations/ABP_Shooter_Base.ABP_Shooter_Base_C"));
-	if (BP_AnimInst.Succeeded())
+	// Spring Arm and Cmamera
 	{
-		SkeletalMeshComp->SetAnimInstanceClass(BP_AnimInst.Class);
+		SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+		//SpringArm->SetupAttachment(SkeletalMeshComp, FName(TEXT("upperarm_rSocket")));
+		SpringArm->SetupAttachment(GetCapsuleComponent());
+
+
+		SpringArm->TargetArmLength = 430.0;
+
+		SpringArm->SetRelativeRotation(FRotator(-6.000000, 0, 0));
+		SpringArm->TargetOffset = FVector(0, 40, 100);
+
+		Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+		Camera->SetupAttachment(SpringArm);
+
+		SpringArm->bUsePawnControlRotation = true;
+
+		SpringArm->bInheritRoll = true;
+		SpringArm->bInheritPitch = true;
+		SpringArm->bInheritYaw = true;
+		SpringArm->bDoCollisionTest = true;
+
+		bUseControllerRotationYaw = true;
+
+
+		UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+		MovementComponent->bOrientRotationToMovement = true;;
+		MovementComponent->bUseControllerDesiredRotation = false;
+		MovementComponent->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
+		
+
 	}
+	
+
+	static ConstructorHelpers::FObjectFinder<USTInputConfig> IC_Shooter(TEXT(""));
 
 }
 
@@ -35,6 +71,10 @@ AShooter::AShooter()
 void AShooter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Owner = this;
+	CurrentWeapon = GetWorld()->SpawnActor<ASTGun>(ASTGun::StaticClass(), FTransform(), SpawnParameters);
 	
 }
 
@@ -50,5 +90,31 @@ void AShooter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	//if (EnhancedInputComponent != nullptr)
+	//{
+	//	FName ActionName;
+	//	ETriggerEvent KeyEvent = ETriggerEvent::Triggered;
+	//	UInputAction* InputAction;
+	//	EnhancedInputComponent->BindAction(InputAction, KeyEvent, this, &AShooter::CharacterMovement,);
+	//}
+}
+
+void AShooter::OnCharacterMovement(const FVector2D& MovementValue)
+{
+	FVector FowardVector = Camera->GetForwardVector();
+	FVector RightVector = Camera->GetRightVector();
+
+	GetCharacterMovement()->AddInputVector(FowardVector * MovementValue.Y);
+	GetCharacterMovement()->AddInputVector(RightVector * MovementValue.X);
+}
+
+void AShooter::OnCameraMovement(const FVector2D& MovementValue)
+{
+	AddControllerPitchInput(MovementValue.Y * CameraPitchSpeed);
+	AddControllerYawInput(MovementValue.X * CameraYawSpeed);
+	
 }
 

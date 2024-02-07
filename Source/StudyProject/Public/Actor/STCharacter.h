@@ -46,6 +46,7 @@ public:
 		Orbit,
 		TopView,
 		NPC,
+		Shooter,
 		ModeCount,
 	};
 
